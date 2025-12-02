@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Home, FileCheck, Users, Shield, Briefcase, DollarSign, Package, BarChart3, Settings, User, Zap } from 'lucide-react';
+import { LogOut, Home, FileCheck, Users, Shield, Briefcase, DollarSign, Package, BarChart3, Settings, User, Zap, Leaf } from 'lucide-react';
 import CertificationsView from './Painel/CertificationsView';
 import FarmersView from './Painel/FarmersView';
 import AuditorsView from './Painel/AuditorsView';
@@ -81,7 +81,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, userRole, setUserRole }
         'farmer': 'Agricultor(a)',
       };
       
-      const allowedRoles = userRole === 'admin' ? roles : roles.filter(r => r !== 'admin'); // Coordenador não vê como Admin
+      // Coordenador não pode ver como Admin/Gestor
+      const allowedRoles = userRole === 'admin' ? roles : roles.filter(r => r !== 'admin');
       
       return (
         <div className="p-4 border-t border-gray-700">
