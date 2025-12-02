@@ -1,37 +1,43 @@
 import React, { useState } from 'react';
-// Importa o componente da Landing Page
 import LandingPage from './components/LandingPage';
-// Importa o componente Dashboard
 import Dashboard from './components/Dashboard';
 
-// Define os estados possíveis da aplicação
+// Tipos de perfil que o sistema pode assumir
+// Adicionamos 'coordinator' para segregar permissões
+export type UserRole = 'admin' | 'coordinator' | 'auditor' | 'farmer';
 type AppView = 'landing' | 'dashboard';
 
 const App: React.FC = () => {
-  // Estado para controlar a visualização atual: Tela inicial ou Painel
   const [activeView, setActiveView] = useState<AppView>('landing');
+  // NOVO ESTADO: O perfil atualmente logado ou visualizado. 
+  // O padrão é 'admin' para simular o acesso ao painel de gestão.
+  const [userRole, setUserRole] = useState<UserRole>('admin'); 
 
-  // Funções de controle de autenticação
-  const handleLogin = () => {
-    // Simula uma autenticação bem-sucedida
+  // A função de login agora simula a entrada de um perfil
+  const handleLogin = (role: UserRole) => {
+    setUserRole(role);
     setActiveView('dashboard');
   };
 
   const handleLogout = () => {
-    // Retorna para a tela de boas-vindas
     if (window.confirm('Tem certeza que deseja sair do Painel de Gestão?')) {
       setActiveView('landing');
+      setUserRole('admin'); // Resetar a simulação para o padrão
     }
   };
 
   return (
     <div className="App">
       {activeView === 'landing' ? (
-        // Renderiza a Landing Page, passando a função de login
+        // Passa a função de login que aceita o perfil (role)
         <LandingPage onLogin={handleLogin} />
       ) : (
-        // Renderiza o Dashboard, passando a função de logout
-        <Dashboard onLogout={handleLogout} />
+        // Passa o perfil, a função de logout e a função de mudar perfil
+        <Dashboard 
+          userRole={userRole} 
+          onLogout={handleLogout} 
+          setUserRole={setUserRole} 
+        />
       )}
     </div>
   );
