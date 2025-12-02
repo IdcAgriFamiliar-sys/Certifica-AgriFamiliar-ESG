@@ -1,15 +1,9 @@
 import React from 'react';
 import { Briefcase, CheckCircle, Clock, XCircle, Search, ChevronRight, Filter } from 'lucide-react';
+// Importação dos tipos globais
+import { Audit } from '../../types'; 
 
-interface Audit {
-  id: string;
-  certificacao: string;
-  agricultor: string;
-  auditor: string;
-  dataAgendada: number;
-  status: 'Concluída' | 'Em Andamento' | 'Cancelada';
-}
-
+// Simulação de dados usando a interface Audit importada
 const mockAudits: Audit[] = [
   { id: 'AUDIT-2024-001', certificacao: 'ESG Nível Ouro', agricultor: 'Sítio Esperança', auditor: 'Dr. Lucas Ribeiro', dataAgendada: Date.now() - 86400000 * 10, status: 'Concluída' },
   { id: 'AUDIT-2024-002', certificacao: 'Sustentabilidade Básica', agricultor: 'Fazenda União', auditor: 'Dra. Camila Mendes', dataAgendada: Date.now() + 86400000 * 5, status: 'Em Andamento' },
