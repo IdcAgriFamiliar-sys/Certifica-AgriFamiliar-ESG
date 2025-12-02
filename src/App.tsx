@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserPlus, LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 
+// IMPORTAÇÕES DOS COMPONENTES
 import CustomModal from './components/CustomModal'; 
 import FarmerRegistrationForm from './components/FarmerRegistrationForm'; 
 import AuditorCredentialForm from './components/AuditorCredentialForm'; 
 import Header from './components/Header'; 
+import Dashboard from './components/Dashboard'; // NOVO: Importa o Dashboard
 
+// TIPOS DE DADOS E INTERFACES (Simulação)
 interface DiagnosticAnswers {
   q1: boolean;
   q2: string;
@@ -19,12 +22,16 @@ interface Certification {
   status: 'Pendente' | 'Emitido' | 'Expirado';
 }
 
+type AppView = 'landing' | 'farmer-register' | 'auditor-credential' | 'login' | 'dashboard';
+
+// COMPONENTE PRINCIPAL (App)
 const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<'landing' | 'farmer-register' | 'auditor-credential' | 'login' | 'dashboard'>('landing');
+  const [activeView, setActiveView] = useState<AppView>('landing');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', type: 'success' as const });
 
+  // Funções de manipulação/simulação de envio de dados
   const handleFarmerSubmit = (data: any) => {
     console.log('Dados do Agricultor Enviados:', data);
     setModalContent({ 
@@ -56,7 +63,31 @@ const App: React.FC = () => {
     });
     setIsModalOpen(true);
   };
+  
+  // NOVO: Função para simular o login
+  const handleLogin = () => {
+    setActiveView('dashboard');
+  };
 
+  // NOVO: Função para simular o logout
+  const handleLogout = () => {
+    setActiveView('landing');
+    setModalContent({ 
+        title: 'Sessão Encerrada', 
+        message: 'Você saiu do sistema com sucesso.', 
+        type: 'info' 
+    });
+    setIsModalOpen(true);
+  };
+
+  // Renderiza o Dashboard em tela cheia se for a view ativa
+  if (activeView === 'dashboard') {
+    return (
+      <Dashboard onLogout={handleLogout} />
+    );
+  }
+
+  // Renderiza a estrutura padrão (Header + Conteúdo) para as outras views
   return (
     <div className="min-h-screen font-sans">
       
@@ -84,14 +115,6 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
-        
-        {activeView === 'dashboard' && (
-            <div className="text-center py-20 bg-white rounded-xl shadow-lg">
-                <h2 className="text-4xl font-extrabold text-gray-900 mb-4">Painel de Gestão (Dashboard)</h2>
-                <p className="text-xl text-gray-600 mb-8">Conteúdo do painel virá aqui...</p>
-                <button onClick={() => setActiveView('landing')} className="text-indigo-600 hover:underline">Voltar</button>
-            </div>
-        )}
 
       </main>
 
@@ -113,8 +136,14 @@ const App: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
             <h3 className="text-2xl font-bold mb-4">Login</h3>
-            <p className="mb-6 text-gray-600">Formulário de login simples...</p>
-            <button onClick={() => setActiveView('landing')} className="text-indigo-600 hover:underline">Voltar</button>
+            <p className="mb-6 text-gray-600">Para acessar o Painel, faça o login:</p>
+            <button 
+                onClick={handleLogin}
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+            >
+                <LogIn size={20} /> Acessar Painel
+            </button>
+            <button onClick={() => setActiveView('landing')} className="mt-4 w-full text-indigo-600 hover:underline">Voltar</button>
           </div>
         </div>
       )}
