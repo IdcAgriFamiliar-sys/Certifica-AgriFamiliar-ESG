@@ -1,13 +1,14 @@
 import React from 'react';
-import { Settings, User, Lock, DollarSign, Bell, Globe } from 'lucide-react';
+import { Settings, User, Lock, DollarSign, Bell, Globe, Database } from 'lucide-react';
 
 const SettingsView: React.FC = () => {
   const settingsOptions = [
     { icon: <User size={20} />, title: 'Perfil do Usuário', description: 'Gerencie seu nome, e-mail e informações de contato.' },
     { icon: <Lock size={20} />, title: 'Segurança e Senha', description: 'Altere sua senha e configure a autenticação de dois fatores.' },
-    { icon: <DollarSign size={20} />, title: 'Configurações de Faturamento', description: 'Gerencie planos de assinatura e métodos de pagamento.' },
     { icon: <Bell size={20} />, title: 'Notificações', description: 'Defina como e quando você deseja receber alertas do sistema.' },
     { icon: <Globe size={20} />, title: 'Localização e Idioma', description: 'Configure o fuso horário, formato de data e idioma.' },
+    { icon: <DollarSign size={20} />, title: 'Configurações de Faturamento', description: 'Gerencie planos de assinatura e métodos de pagamento.' },
+    { icon: <Database size={20} />, title: 'Backup e Dados', description: 'Realize backup de dados ou solicite exportação de informações do sistema.' },
   ];
 
   return (
