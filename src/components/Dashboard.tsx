@@ -3,13 +3,13 @@ import { Home, FileCheck, Users, Shield, TrendingUp, DollarSign, Package, BarCha
 
 // IMPORTAÇÕES DAS VIEWS DA DASHBOARD
 import CertificationsView from './Painel/CertificationsView'; 
-import FarmersView from './Painel/FarmersView';               // AGORA USADO
+import FarmersView from './Painel/FarmersView';               
 import AuditorsView from './Painel/AuditorsView';            
 import FinancesView from './Painel/FinancesView';             
 import BatchesView from './Painel/BatchesView';               
 import ReportsView from './Painel/ReportsView';               
 import SettingsView from './Painel/SettingsView';             
-import AuditsView from './Painel/AuditsView';                 // NOVO
+import AuditsView from './Painel/AuditsView';                 
 
 // Tipos e Interfaces
 interface DashboardCardProps {
@@ -30,7 +30,7 @@ const Sidebar: React.FC<{ activeView: DashboardView, setActiveView: (view: Dashb
     { name: 'Certificações', icon: <FileCheck size={20} />, view: 'certificacoes' as const },
     { name: 'Agricultores', icon: <Users size={20} />, view: 'agricultores' as const },
     { name: 'Auditores (Credenciamento)', icon: <Shield size={20} />, view: 'auditores' as const },
-    { name: 'Auditorias (Agenda)', icon: <Briefcase size={20} />, view: 'auditorias' as const }, // NOVO ITEM
+    { name: 'Auditorias (Agenda)', icon: <Briefcase size={20} />, view: 'auditorias' as const },
     { name: 'Finanças', icon: <DollarSign size={20} />, view: 'financas' as const },
     { name: 'Lotes de Produção', icon: <Package size={20} />, view: 'lotes' as const },
     { name: 'Relatórios', icon: <BarChart3 size={20} />, view: 'relatorios' as const },
@@ -156,7 +156,7 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       case 'auditores':
         return <AuditorsView />;
       case 'auditorias':
-        return <AuditsView />; // NOVO: Renderiza AuditsView
+        return <AuditsView />;
       case 'financas':
         return <FinancesView />;
       case 'lotes':
