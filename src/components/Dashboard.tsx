@@ -1,182 +1,176 @@
-import React, { useState } from 'react';
-import { Home, FileCheck, Users, Shield, TrendingUp, DollarSign, Package, BarChart3, Settings, LogOut, Briefcase } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LogOut, Home, FileCheck, Users, Shield, Briefcase, DollarSign, Package, BarChart3, Settings, User, Zap } from 'lucide-react';
+import CertificationsView from './Painel/CertificationsView';
+import FarmersView from './Painel/FarmersView';
+import AuditorsView from './Painel/AuditorsView';
+import AuditsView from './Painel/AuditsView';
+import FinancesView from './Painel/FinancesView';
+import BatchesView from './Painel/BatchesView';
+import ReportsView from './Painel/ReportsView';
+import SettingsView from './Painel/SettingsView';
+import { UserRole } from '../App'; 
 
-// IMPORTAÇÕES DAS VIEWS DA DASHBOARD
-import CertificationsView from './Painel/CertificationsView'; 
-import FarmersView from './Painel/FarmersView';               
-import AuditorsView from './Painel/AuditorsView';            
-import FinancesView from './Painel/FinancesView';             
-import BatchesView from './Painel/BatchesView';               
-import ReportsView from './Painel/ReportsView';               
-import SettingsView from './Painel/SettingsView';             
-import AuditsView from './Painel/AuditsView';                 
-
-// Tipos e Interfaces
-interface DashboardCardProps {
+// Mapeamento de rotas e ícones
+interface MenuItem {
+  name: string;
   icon: React.ReactNode;
-  title: string;
-  value: string;
-  trend: 'up' | 'down' | 'neutral';
+  component: React.FC;
+  visibleFor: UserRole[]; 
 }
 
-type DashboardView = 'visao-geral' | 'certificacoes' | 'agricultores' | 'auditores' | 'auditorias' | 'financas' | 'lotes' | 'relatorios' | 'configuracoes';
+interface DashboardProps {
+  onLogout: () => void;
+  userRole: UserRole;
+  setUserRole: (role: UserRole) => void;
+}
 
-// ============================================================================
-// COMPONENTE SIDEBAR
-// ============================================================================
-const Sidebar: React.FC<{ activeView: DashboardView, setActiveView: (view: DashboardView) => void, onLogout: () => void }> = ({ activeView, setActiveView, onLogout }) => {
-  const navItems = [
-    { name: 'Visão Geral', icon: <Home size={20} />, view: 'visao-geral' as const },
-    { name: 'Certificações', icon: <FileCheck size={20} />, view: 'certificacoes' as const },
-    { name: 'Agricultores', icon: <Users size={20} />, view: 'agricultores' as const },
-    { name: 'Auditores (Credenciamento)', icon: <Shield size={20} />, view: 'auditores' as const },
-    { name: 'Auditorias (Agenda)', icon: <Briefcase size={20} />, view: 'auditorias' as const },
-    { name: 'Finanças', icon: <DollarSign size={20} />, view: 'financas' as const },
-    { name: 'Lotes de Produção', icon: <Package size={20} />, view: 'lotes' as const },
-    { name: 'Relatórios', icon: <BarChart3 size={20} />, view: 'relatorios' as const },
-    { name: 'Configurações', icon: <Settings size={20} />, view: 'configuracoes' as const },
+const Dashboard: React.FC<DashboardProps> = ({ onLogout, userRole, setUserRole }) => {
+  const [activeRoute, setActiveRoute] = useState<string>('home');
+
+  // Garante que a rota ativa é válida para o novo perfil ao mudar o role
+  useEffect(() => {
+    // Tenta manter a rota, mas volta para a Home se não for visível para o novo perfil
+    const currentItem = menuItems.find(item => item.name === activeRoute);
+    if (!currentItem || !currentItem.visibleFor.includes(userRole)) {
+      setActiveRoute('home'); 
+    }
+  }, [userRole]);
+
+
+  // Mapeamento de rotas com base na visibilidade dos perfis (Suas regras de negócio)
+  const menuItems: MenuItem[] = [
+    // Dashboard Geral: Visão de alto nível
+    { name: 'Dashboard Geral', icon: <Home size={20} />, component: ReportsView, visibleFor: ['admin', 'coordinator'] },
+    
+    // Gestão de Usuários e Cadastros
+    { name: 'Agricultores (Gestão)', icon: <Users size={20} />, component: FarmersView, visibleFor: ['admin', 'coordinator'] },
+    { name: 'Auditores (Credenc.)', icon: <Shield size={20} />, component: AuditorsView, visibleFor: ['admin', 'coordinator'] },
+
+    // Módulos de Certificação e Auditoria
+    { name: 'Certificações', icon: <FileCheck size={20} />, component: CertificationsView, visibleFor: ['admin', 'coordinator', 'auditor'] },
+    { name: 'Agenda de Auditorias', icon: <Briefcase size={20} />, component: AuditsView, visibleFor: ['admin', 'coordinator', 'auditor'] },
+
+    // Módulos do Agricultor (Visão de gestão da propriedade)
+    { name: 'Minha Propriedade/Dados', icon: <User size={20} />, component: FarmersView, visibleFor: ['farmer'] }, 
+    { name: 'Lotes e Rastreabilidade', icon: <Package size={20} />, component: BatchesView, visibleFor: ['farmer', 'admin', 'coordinator'] },
+    { name: 'Finanças e Receitas', icon: <DollarSign size={20} />, component: FinancesView, visibleFor: ['farmer', 'admin', 'coordinator'] },
+    
+    // Relatórios e Ferramentas de Gestão
+    { name: 'Relatórios/Analytics', icon: <BarChart3 size={20} />, component: ReportsView, visibleFor: ['admin', 'coordinator'] },
+    { name: 'Documentos (Upload/Download)', icon: <Zap size={20} />, component: SettingsView, visibleFor: ['admin', 'coordinator', 'auditor', 'farmer'] }, // Item para simular upload/download
+    
+    // Configurações
+    { name: 'Configurações (Admin)', icon: <Settings size={20} />, component: SettingsView, visibleFor: ['admin'] }, // Exclusivo do Admin
   ];
 
-  return (
-    <div className="w-64 bg-gray-800 text-white flex flex-col p-4 shadow-2xl">
-      <div className="flex items-center mb-6 border-b border-gray-700 pb-4">
-        <span className="text-xl font-bold text-green-400">Painel de Gestão</span>
-      </div>
-      <nav className="flex-grow space-y-2">
-        {navItems.map(item => (
-          <button
-            key={item.view}
-            onClick={() => setActiveView(item.view)}
-            className={`flex items-center w-full px-3 py-2 rounded-lg transition-colors ${
-              activeView === item.view ? 'bg-indigo-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
-            {item.icon}
-            <span className="ml-3 text-sm">{item.name}</span>
-          </button>
-        ))}
-      </nav>
-      <div className="mt-auto pt-4 border-t border-gray-700">
-        <div className="text-sm mb-2 px-3 text-gray-400">Usuário: Coordenador(a)</div>
-        <button
-          onClick={onLogout}
-          className="flex items-center w-full px-3 py-2 text-red-400 hover:bg-gray-700 rounded-lg transition-colors"
-        >
-          <LogOut size={20} />
-          <span className="ml-3">Sair</span>
-        </button>
-      </div>
-    </div>
-  );
-};
+  // Filtra os itens do menu com base no perfil logado
+  const visibleMenuItems = menuItems.filter(item => item.visibleFor.includes(userRole));
 
-// ============================================================================
-// COMPONENTE CARD (para métricas)
-// ============================================================================
-const DashboardCard: React.FC<DashboardCardProps> = ({ icon, title, value, trend }) => {
-  const trendColor = trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-500';
-  const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '▬';
-  
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-gray-500">{title}</h4>
-        <div className="text-indigo-600">{icon}</div>
-      </div>
-      <div className="mt-1 flex items-end justify-between">
-        <span className="text-3xl font-bold text-gray-900">{value}</span>
-        <div className={`flex items-center text-sm font-semibold ${trendColor}`}>
-          {trendIcon}
-          <span className="ml-1">4.5%</span> 
-        </div>
-      </div>
-    </div>
-  );
-};
+  // Tenta encontrar o componente ativo. Se for 'home', usa ReportsView como padrão.
+  const ActiveComponent = visibleMenuItems.find(item => item.name === activeRoute)?.component || ReportsView;
 
-// ============================================================================
-// COMPONENTE VISÃO GERAL (Conteúdo da 'visao-geral')
-// ============================================================================
-const OverviewView: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <h3 className="text-3xl font-bold text-gray-800">Visão Geral</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard 
-          icon={<Users size={24} />} 
-          title="Agricultores Cadastrados" 
-          value="1.245" 
-          trend="up" 
-        />
-        <DashboardCard 
-          icon={<FileCheck size={24} />} 
-          title="Certificações Ativas" 
-          value="87" 
-          trend="up" 
-        />
-        <DashboardCard 
-          icon={<Briefcase size={24} />} 
-          title="Auditorias Pendentes" 
-          value="5" 
-          trend="neutral" 
-        />
-        <DashboardCard 
-          icon={<TrendingUp size={24} />} 
-          title="Média ESG Score" 
-          value="78.2" 
-          trend="up" 
-        />
-      </div>
+  // Renderiza o seletor de perfil (View As)
+  const renderRoleSelector = () => {
+    // Apenas Admin e Coordenador podem alternar visões
+    if (userRole === 'admin' || userRole === 'coordinator') {
+      const roles: UserRole[] = ['admin', 'coordinator', 'auditor', 'farmer'];
+      const roleNames = {
+        'admin': 'Admin/Gestor',
+        'coordinator': 'Coordenador',
+        'auditor': 'Auditor',
+        'farmer': 'Agricultor(a)',
+      };
       
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h4 className="text-lg font-semibold mb-4 text-gray-800">Progresso Anual de Certificações</h4>
-        <div className="h-64 flex items-center justify-center text-gray-500">
-          
+      const allowedRoles = userRole === 'admin' ? roles : roles.filter(r => r !== 'admin'); // Coordenador não vê como Admin
+      
+      return (
+        <div className="p-4 border-t border-gray-700">
+          <label className="block text-xs font-medium text-gray-400 mb-1">VISUALIZAR COMO:</label>
+          <select
+            value={userRole}
+            onChange={(e) => {
+              setUserRole(e.target.value as UserRole);
+            }}
+            className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            {allowedRoles.map(role => (
+              <option key={role} value={role}>{roleNames[role]}</option>
+            ))}
+          </select>
         </div>
-      </div>
-    </div>
-  );
-};
-
-// ============================================================================
-// COMPONENTE PRINCIPAL DO DASHBOARD
-// ============================================================================
-const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
-  const [activeView, setActiveView] = useState<DashboardView>('visao-geral');
-
-  // Mapeia a view ativa para o componente de conteúdo
-  const renderViewContent = () => {
-    switch (activeView) {
-      case 'visao-geral':
-        return <OverviewView />;
-      case 'certificacoes':
-        return <CertificationsView />;
-      case 'agricultores':
-        return <FarmersView />;
-      case 'auditores':
-        return <AuditorsView />;
-      case 'auditorias':
-        return <AuditsView />;
-      case 'financas':
-        return <FinancesView />;
-      case 'lotes':
-        return <BatchesView />;
-      case 'relatorios':
-        return <ReportsView />;
-      case 'configuracoes':
-        return <SettingsView />;
-      default:
-        return <OverviewView />;
+      );
     }
+    return null;
   };
+
+  const getProfileName = (role: UserRole) => {
+    switch(role) {
+      case 'admin': return 'Admin/Gestor';
+      case 'coordinator': return 'Coordenador';
+      case 'auditor': return 'Auditor';
+      case 'farmer': return 'Agricultor(a)';
+      default: return 'Usuário';
+    }
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar activeView={activeView} setActiveView={setActiveView} onLogout={onLogout} />
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-800 text-white flex flex-col justify-between">
+        <div>
+          <div className="p-4 text-2xl font-bold text-green-400 border-b border-gray-700 flex items-center gap-2">
+            <Leaf size={28} />
+            AgriESG
+          </div>
 
-      <div className="flex-1 overflow-y-auto p-8">
-        {renderViewContent()}
-      </div>
+          {/* Seletor de Perfil (View As) */}
+          {renderRoleSelector()}
+
+          {/* Menu de Navegação */}
+          <nav className="flex-1 p-4 space-y-2">
+            {visibleMenuItems.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => setActiveRoute(item.name)}
+                className={`flex items-center w-full p-3 rounded-lg transition duration-150 ${
+                  activeRoute === item.name
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                {item.icon}
+                <span className="ml-3 text-sm font-medium">{item.name}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Footer Sidebar */}
+        <div className="p-4 border-t border-gray-700">
+          <div className="text-sm font-semibold mb-2 text-gray-300">
+            Perfil: {getProfileName(userRole)}
+          </div>
+          <button
+            onClick={onLogout}
+            className="flex items-center w-full p-3 text-sm text-red-400 bg-gray-700 rounded-lg hover:bg-red-500 hover:text-white transition duration-150"
+          >
+            <LogOut size={20} />
+            <span className="ml-3">Sair do Sistema</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto p-8">
+        <header className="mb-8">
+          <h1 className="text-4xl font-extrabold text-gray-900">
+            {activeRoute === 'home' ? `Dashboard Geral (${getProfileName(userRole)})` : activeRoute}
+          </h1>
+        </header>
+        <div className="bg-white p-6 rounded-xl shadow-xl min-h-[85vh]">
+          <ActiveComponent />
+        </div>
+      </main>
     </div>
   );
 };
