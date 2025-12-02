@@ -2,7 +2,7 @@ import React from 'react';
 import { Leaf, ShieldCheck, TrendingUp, BarChart2 } from 'lucide-react';
 
 // ============================================================================
-// IMPORTAÇÃO DAS LOGOS (AJUSTADO PARA OS SEUS NOMES DE ARQUIVO)
+// IMPORTAÇÃO DAS LOGOS
 // ============================================================================
 import idcLogo from '../assets/Logo Despertar da Cidadania.png'; 
 import seloEsg from '../assets/Selo_ESG_AgriFamiliar-PNG.png';   
@@ -27,10 +27,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <header className="bg-white shadow-md p-4 sticky top-0 z-10">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
-            {/* Ícone Leaf + Nome do Sistema (Provavelmente será substituído por uma logo futura) */}
+            {/* Ícone Leaf + Nome completo do Projeto */}
             <div className="flex items-center text-2xl font-bold text-green-700 mr-4">
               <Leaf size={30} className="mr-2" />
-              AgriESG
+              Certifica AgriFamiliar ESG
             </div>
             {/* Logo da Instituição Criadora (IDC) */}
             <img src={idcLogo} alt="Logo IDC - Instituto Despertar da Cidadania" className="h-8" />
