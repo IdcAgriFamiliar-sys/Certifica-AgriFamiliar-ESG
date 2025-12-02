@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import LandingPage from './components/LandingPage';
+import LandingPage from './components/LandingPage'; 
 import Dashboard from './components/Dashboard';
 
 // Tipos de perfil que o sistema pode assumir
@@ -9,11 +9,10 @@ type AppView = 'landing' | 'dashboard';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<AppView>('landing');
-  // NOVO ESTADO: O perfil atualmente logado ou visualizado. 
-  // O padrão é 'admin' para simular o acesso ao painel de gestão.
+  // O perfil padrão é 'admin' para simular o acesso inicial ao painel de gestão.
   const [userRole, setUserRole] = useState<UserRole>('admin'); 
 
-  // A função de login agora simula a entrada de um perfil
+  // A função de login simula a entrada de um perfil
   const handleLogin = (role: UserRole) => {
     setUserRole(role);
     setActiveView('dashboard');
