@@ -1,15 +1,9 @@
 import React from 'react';
 import { Users, FileCheck, MapPin, Search, ChevronRight, Plus, AlertCircle } from 'lucide-react';
+// Importação dos tipos globais
+import { Farmer } from '../../types'; 
 
-interface Farmer {
-  id: string;
-  nomePropriedade: string;
-  proprietario: string;
-  localizacao: string;
-  statusCertificacao: 'Certificado' | 'Em Avaliação' | 'Rejeitado';
-  lastActivity: number;
-}
-
+// Simulação de dados usando a interface Farmer importada
 const mockFarmers: Farmer[] = [
   { id: 'AGR-001', nomePropriedade: 'Sítio Esperança', proprietario: 'José da Silva', localizacao: 'Minas Gerais', statusCertificacao: 'Certificado', lastActivity: Date.now() - 86400000 * 2 },
   { id: 'AGR-002', nomePropriedade: 'Fazenda União', proprietario: 'Maria Oliveira', localizacao: 'São Paulo', statusCertificacao: 'Em Avaliação', lastActivity: Date.now() - 86400000 * 7 },
