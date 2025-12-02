@@ -1,6 +1,13 @@
 import React from 'react';
 import { Leaf, ShieldCheck, TrendingUp, BarChart2 } from 'lucide-react';
 
+// ============================================================================
+// IMPORTAÇÃO DAS LOGOS (AJUSTADO PARA OS SEUS NOMES DE ARQUIVO)
+// ============================================================================
+import idcLogo from '../assets/Logo Despertar da Cidadania.png'; 
+import seloEsg from '../assets/Selo_ESG_AgriFamiliar-PNG.png';   
+// ============================================================================
+
 interface LandingPageProps {
   onLogin: () => void;
 }
@@ -19,10 +26,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       {/* Header */}
       <header className="bg-white shadow-md p-4 sticky top-0 z-10">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center text-2xl font-bold text-green-700">
-            <Leaf size={30} className="mr-2" />
-            AgriESG
+          <div className="flex items-center">
+            {/* Ícone Leaf + Nome do Sistema (Provavelmente será substituído por uma logo futura) */}
+            <div className="flex items-center text-2xl font-bold text-green-700 mr-4">
+              <Leaf size={30} className="mr-2" />
+              AgriESG
+            </div>
+            {/* Logo da Instituição Criadora (IDC) */}
+            <img src={idcLogo} alt="Logo IDC - Instituto Despertar da Cidadania" className="h-8" />
           </div>
+          
           <button
             onClick={onLogin}
             className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-300 shadow-md"
@@ -47,6 +60,26 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
           >
             Começar Agora
           </button>
+        </section>
+        
+        {/* NOVA SEÇÃO: Apresentação do IDC e Selo */}
+        <section className="py-16 bg-white border-b border-gray-200">
+            <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-10">
+                <div className="lg:w-2/3">
+                    <h2 className="text-3xl font-bold text-green-700 mb-4">Sobre o Instituto Despertar da Cidadania (IDC)</h2>
+                    <p className="text-gray-600 text-lg mb-4">
+                        O **IDC** é a instituição idealizadora e promotora do projeto Certifica AgriFamiliar ESG. Nossa missão é fomentar o desenvolvimento sustentável e a inclusão social no campo, garantindo que a agricultura familiar atenda aos mais altos padrões ambientais, sociais e de governança.
+                    </p>
+                    <p className="text-gray-600">
+                        Através da certificação, o IDC busca valorizar o trabalho do agricultor, conectando-o a um mercado que reconhece e recompensa práticas responsáveis.
+                    </p>
+                </div>
+                {/* O Selo ESG como distintivo */}
+                <div className="lg:w-1/3 flex flex-col items-center p-6 bg-gray-50 rounded-xl shadow-inner">
+                    <img src={seloEsg} alt="Selo AgriFamiliar ESG" className="w-40 h-auto mb-3" />
+                    <p className="text-sm font-semibold text-gray-700 text-center">Distintivo de Conformidade ESG</p>
+                </div>
+            </div>
         </section>
 
         {/* Features Section */}
