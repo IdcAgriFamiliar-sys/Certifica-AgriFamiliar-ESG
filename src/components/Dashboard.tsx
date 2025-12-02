@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
-import { Home, FileCheck, Users, Shield, TrendingUp, DollarSign, Package, BarChart3, FileText, Settings, UserPlus, LogOut } from 'lucide-react';
+import { Home, FileCheck, Users, Shield, TrendingUp, DollarSign, Package, BarChart3, Settings, LogOut, Briefcase } from 'lucide-react';
 
-// Define a estrutura de dados (TYPES) necessária para simular o painel
+// IMPORTAÇÕES DAS VIEWS DA DASHBOARD
+import CertificationsView from './Painel/CertificationsView'; 
+import FarmersView from './Painel/FarmersView';               // AGORA USADO
+import AuditorsView from './Painel/AuditorsView';            
+import FinancesView from './Painel/FinancesView';             
+import BatchesView from './Painel/BatchesView';               
+import ReportsView from './Painel/ReportsView';               
+import SettingsView from './Painel/SettingsView';             
+import AuditsView from './Painel/AuditsView';                 // NOVO
+
+// Tipos e Interfaces
 interface DashboardCardProps {
   icon: React.ReactNode;
   title: string;
@@ -9,18 +19,18 @@ interface DashboardCardProps {
   trend: 'up' | 'down' | 'neutral';
 }
 
-// Define as opções de sub-visualização (abas) do Dashboard
-type DashboardView = 'visao-geral' | 'certificacoes' | 'agricultores' | 'auditores' | 'financas' | 'lotes' | 'relatorios' | 'configuracoes';
+type DashboardView = 'visao-geral' | 'certificacoes' | 'agricultores' | 'auditores' | 'auditorias' | 'financas' | 'lotes' | 'relatorios' | 'configuracoes';
 
 // ============================================================================
 // COMPONENTE SIDEBAR
 // ============================================================================
-const Sidebar: React.FC<{ activeView: DashboardView, setActiveView: (view: DashboardView) => void }> = ({ activeView, setActiveView }) => {
+const Sidebar: React.FC<{ activeView: DashboardView, setActiveView: (view: DashboardView) => void, onLogout: () => void }> = ({ activeView, setActiveView, onLogout }) => {
   const navItems = [
     { name: 'Visão Geral', icon: <Home size={20} />, view: 'visao-geral' as const },
     { name: 'Certificações', icon: <FileCheck size={20} />, view: 'certificacoes' as const },
     { name: 'Agricultores', icon: <Users size={20} />, view: 'agricultores' as const },
-    { name: 'Auditores', icon: <Shield size={20} />, view: 'auditores' as const },
+    { name: 'Auditores (Credenciamento)', icon: <Shield size={20} />, view: 'auditores' as const },
+    { name: 'Auditorias (Agenda)', icon: <Briefcase size={20} />, view: 'auditorias' as const }, // NOVO ITEM
     { name: 'Finanças', icon: <DollarSign size={20} />, view: 'financas' as const },
     { name: 'Lotes de Produção', icon: <Package size={20} />, view: 'lotes' as const },
     { name: 'Relatórios', icon: <BarChart3 size={20} />, view: 'relatorios' as const },
@@ -42,14 +52,14 @@ const Sidebar: React.FC<{ activeView: DashboardView, setActiveView: (view: Dashb
             }`}
           >
             {item.icon}
-            <span className="ml-3">{item.name}</span>
+            <span className="ml-3 text-sm">{item.name}</span>
           </button>
         ))}
       </nav>
       <div className="mt-auto pt-4 border-t border-gray-700">
         <div className="text-sm mb-2 px-3 text-gray-400">Usuário: Coordenador(a)</div>
         <button
-          onClick={() => alert('Simulando Logout')} // Esta função será substituída no App.tsx
+          onClick={onLogout}
           className="flex items-center w-full px-3 py-2 text-red-400 hover:bg-gray-700 rounded-lg transition-colors"
         >
           <LogOut size={20} />
@@ -77,7 +87,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ icon, title, value, trend
         <span className="text-3xl font-bold text-gray-900">{value}</span>
         <div className={`flex items-center text-sm font-semibold ${trendColor}`}>
           {trendIcon}
-          <span className="ml-1">4.5%</span> {/* Simulação de % */}
+          <span className="ml-1">4.5%</span> 
         </div>
       </div>
     </div>
@@ -85,7 +95,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ icon, title, value, trend
 };
 
 // ============================================================================
-// COMPONENTE VISÃO GERAL (O conteúdo da primeira aba)
+// COMPONENTE VISÃO GERAL (Conteúdo da 'visao-geral')
 // ============================================================================
 const OverviewView: React.FC = () => {
   return (
@@ -105,9 +115,9 @@ const OverviewView: React.FC = () => {
           trend="up" 
         />
         <DashboardCard 
-          icon={<Shield size={24} />} 
-          title="Auditores Credenciados" 
-          value="14" 
+          icon={<Briefcase size={24} />} 
+          title="Auditorias Pendentes" 
+          value="5" 
           trend="neutral" 
         />
         <DashboardCard 
@@ -118,7 +128,6 @@ const OverviewView: React.FC = () => {
         />
       </div>
       
-      {/* Gráfico Simulado */}
       <div className="bg-white p-6 rounded-xl shadow-lg">
         <h4 className="text-lg font-semibold mb-4 text-gray-800">Progresso Anual de Certificações</h4>
         <div className="h-64 flex items-center justify-center text-gray-500">
@@ -141,37 +150,30 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       case 'visao-geral':
         return <OverviewView />;
       case 'certificacoes':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Gestão de Certificações (em breve)</div>;
+        return <CertificationsView />;
       case 'agricultores':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Lista de Agricultores (em breve)</div>;
+        return <FarmersView />;
       case 'auditores':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Lista de Auditores (em breve)</div>;
+        return <AuditorsView />;
+      case 'auditorias':
+        return <AuditsView />; // NOVO: Renderiza AuditsView
       case 'financas':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Módulo de Finanças (em breve)</div>;
+        return <FinancesView />;
       case 'lotes':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Rastreabilidade de Lotes (em breve)</div>;
+        return <BatchesView />;
       case 'relatorios':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Geração de Relatórios (em breve)</div>;
+        return <ReportsView />;
       case 'configuracoes':
-        return <div className="text-center p-10 bg-white rounded-xl shadow-lg">Configurações do Sistema (em breve)</div>;
+        return <SettingsView />;
       default:
         return <OverviewView />;
     }
   };
 
-  // Funções de logout
-  const handleLogout = () => {
-    if (window.confirm('Tem certeza que deseja sair?')) {
-      onLogout();
-    }
-  };
-
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <Sidebar activeView={activeView} setActiveView={setActiveView} />
+      <Sidebar activeView={activeView} setActiveView={setActiveView} onLogout={onLogout} />
 
-      {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-8">
         {renderViewContent()}
       </div>
