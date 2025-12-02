@@ -1,20 +1,13 @@
 import React from 'react';
-import { Shield, CheckCircle, Clock, XCircle, Eye, ChevronRight, Plus, Search } from 'lucide-react';
-
-interface Auditor {
-  id: string;
-  nome: string;
-  registro: string;
-  especialidade: string;
-  status: 'Aprovado' | 'Pendente' | 'Rejeitado';
-  lastAudit: number;
-}
+import { Shield, UserPlus, FileText, Search, ChevronRight, CheckCircle, Clock, XCircle } from 'lucide-react';
+// Importação dos tipos globais
+import { Auditor } from '../../types'; 
 
 const mockAuditors: Auditor[] = [
-  { id: 'AUD-001', nome: 'Dr. Lucas Ribeiro', registro: 'CNA-12345', especialidade: 'Sustentabilidade', status: 'Aprovado', lastAudit: Date.now() - 86400000 * 5 },
-  { id: 'AUD-002', nome: 'Dra. Camila Mendes', registro: 'CNA-67890', especialidade: 'Gestão de Resíduos', status: 'Pendente', lastAudit: Date.now() - 86400000 * 15 },
-  { id: 'AUD-003', nome: 'Eng. Rafael Rocha', registro: 'CNA-11223', especialidade: 'Qualidade do Solo', status: 'Aprovado', lastAudit: Date.now() - 86400000 * 30 },
-  { id: 'AUD-004', nome: 'Biol. Fernanda Lima', registro: 'CNA-44556', especialidade: 'Conservação Hídrica', status: 'Rejeitado', lastAudit: Date.now() - 86400000 * 60 },
+  { id: 'AUD-001', nome: 'Dr. Lucas Ribeiro', registro: 'C-10293', especialidade: 'Sustentabilidade', status: 'Aprovado', lastAudit: Date.now() - 86400000 * 5 },
+  { id: 'AUD-002', nome: 'Dra. Camila Mendes', registro: 'C-10294', especialidade: 'Qualidade do Solo', status: 'Pendente', lastAudit: Date.now() - 86400000 * 30 },
+  { id: 'AUD-003', nome: 'Eng. Rafael Rocha', registro: 'C-10295', especialidade: 'Gestão de Resíduos', status: 'Aprovado', lastAudit: Date.now() - 86400000 * 90 },
+  { id: 'AUD-004', nome: 'Biol. Fernanda Lima', registro: 'C-10296', especialidade: 'ESG', status: 'Rejeitado', lastAudit: Date.now() - 86400000 * 180 },
 ];
 
 const getStatusColor = (status: Auditor['status']) => {
@@ -39,7 +32,7 @@ const getStatusIcon = (status: Auditor['status']) => {
     case 'Rejeitado':
       return <XCircle size={16} />;
     default:
-      return <Shield size={16} />;
+      return null;
   }
 };
 
@@ -48,12 +41,12 @@ const AuditorsView: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-          <Shield size={32} className="text-indigo-600" />
-          Auditores Credenciados
+          <Shield size={32} className="text-purple-600" />
+          Credenciamento de Auditores
         </h3>
-        <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md">
-          <Plus size={20} />
-          Novo Credenciamento
+        <button className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow-md">
+          <UserPlus size={20} />
+          Cadastrar Novo Auditor
         </button>
       </div>
 
@@ -63,19 +56,19 @@ const AuditorsView: React.FC = () => {
           <input
             type="text"
             placeholder="Buscar por Nome ou Registro..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
           />
         </div>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
+        <h4 className="text-lg font-semibold mb-4 text-gray-800">Lista de Credenciados</h4>
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome / Registro</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Especialidade</th>
-              <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Auditoria</th>
               <th scope="col" className="px-6 py-3"></th>
             </tr>
@@ -83,10 +76,9 @@ const AuditorsView: React.FC = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {mockAuditors.map((auditor) => (
               <tr key={auditor.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{auditor.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{auditor.nome}</div>
-                  <div className="text-xs text-gray-500">{auditor.registro}</div>
+                  <div className="text-xs text-gray-500">Reg: {auditor.registro}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{auditor.especialidade}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -99,8 +91,8 @@ const AuditorsView: React.FC = () => {
                   {new Date(auditor.lastAudit).toLocaleDateString('pt-BR')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1">
-                    <Eye size={18} /> Detalhes <ChevronRight size={16} />
+                  <button className="text-purple-600 hover:text-purple-900 flex items-center gap-1">
+                    Ver Perfil <ChevronRight size={16} />
                   </button>
                 </td>
               </tr>
