@@ -1,41 +1,33 @@
-import React from 'react';
-import { UserPlus, ShieldCheck, LogIn, Leaf } from 'lucide-react';
+// src/componentes/Cabeçalho.tsx
 
-interface HeaderProps {
-  setActiveView: (view: 'landing' | 'farmer-register' | 'auditor-credential' | 'login' | 'dashboard') => void;
+import React from 'react';
+import { LogOut } from 'lucide-react';
+import { UserRole } from '../App'; // Assumindo que App.tsx está um nível acima
+
+interface CabeçalhoProps {
+  activeViewName: string;
+  userRole: UserRole;
+  onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ setActiveView }) => {
+const Cabeçalho: React.FC<CabeçalhoProps> = ({ activeViewName, userRole, onLogout }) => {
   return (
-    <header className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-green-600 cursor-pointer flex items-center gap-2" onClick={() => setActiveView('landing')}>
-          <Leaf size={24} />
-          Certifica AgriFamiliar ESG
-        </h1>
-        <nav className="flex space-x-4">
-          <button 
-            onClick={() => setActiveView('farmer-register')}
-            className="flex items-center gap-1 text-gray-700 hover:text-indigo-600 transition"
-          >
-            <UserPlus size={18} /> Cadastro
-          </button>
-          <button 
-            onClick={() => setActiveView('auditor-credential')}
-            className="flex items-center gap-1 text-gray-700 hover:text-indigo-600 transition"
-          >
-            <ShieldCheck size={18} /> Auditor
-          </button>
-          <button 
-            onClick={() => setActiveView('login')}
-            className="flex items-center gap-1 text-white bg-indigo-600 px-3 py-1 rounded-lg hover:bg-indigo-700 transition"
-          >
-            <LogIn size={18} /> Login
-          </button>
-        </nav>
+    <header className="bg-white shadow-md p-4 flex justify-between items-center">
+      <h1 className="text-2xl font-semibold text-gray-800">{activeViewName}</h1>
+      <div className="flex items-center space-x-4">
+        <span className="text-gray-600 font-medium capitalize">
+          Logado como: {userRole}
+        </span>
+        <button
+          onClick={onLogout}
+          className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300"
+        >
+          <LogOut className="w-5 h-5 mr-2" />
+          Sair
+        </button>
       </div>
     </header>
   );
 };
 
-export default Header;
+export default Cabeçalho;
