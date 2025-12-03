@@ -1,4 +1,3 @@
-// src/components/LandingPage.tsx
 import React from "react";
 
 interface Props {
