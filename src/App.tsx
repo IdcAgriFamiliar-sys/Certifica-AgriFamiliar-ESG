@@ -1,26 +1,41 @@
 // src/App.tsx
+import React, { useState } from 'react';
 
-import React from "react";
+import LandingPage from './components/LandingPage';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
-import LandingPage from "./components/LandingPage";
-import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
-import AuditorRegistrationForm from "./components/AuditorRegistrationForm";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-
-export type UserRole = "agricultor" | "auditor" | "admin" | "guest";
+export type UserRole = 'agricultor' | 'auditor' | 'admin' | 'guest';
 
 const App: React.FC = () => {
-  const path = window.location.pathname;
+  const [userRole, setUserRole] = useState<UserRole>('guest');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  if (path === "/farmer-register") return <FarmerRegistrationForm />;
-  if (path === "/auditor-register") return <AuditorRegistrationForm />;
-  if (path === "/login") return <Login onLogin={() => {}} />;
+  const handleLogin = (role: UserRole) => {
+    setUserRole(role);
+    setIsLoggedIn(true);
+  };
 
-  // Painel apenas se usuário logado (implementaremos depois)
-  if (path.startsWith("/dashboard")) return <Dashboard />;
+  const handleLogout = () => {
+    setUserRole('guest');
+    setIsLoggedIn(false);
+  };
 
-  return <LandingPage />;
+  return (
+    <div className="App">
+      {!isLoggedIn && <LandingPage />}
+
+      {!isLoggedIn && <Login onLogin={handleLogin} />}
+
+      {isLoggedIn && userRole !== 'guest' && (
+        <Dashboard
+          userRole={userRole}
+          onLogout={handleLogout}
+          setUserRole={setUserRole}
+        />
+      )}
+    </div>
+  );
 };
 
 export default App;
