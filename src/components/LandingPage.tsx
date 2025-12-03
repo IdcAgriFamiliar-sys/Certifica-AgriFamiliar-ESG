@@ -3,10 +3,7 @@ import { Leaf, ShieldCheck, TrendingUp, BarChart2, UserPlus, FileText, LogIn } f
 import { UserRole } from '../App'; 
 
 // ============================================================================
-// IMPORTAÇÃO DAS LOGOS - AJUSTADO PARA NOMES SEM ESPAÇOS E PÚBLICOS
-// Por favor, garanta que os arquivos no seu repositório foram renomeados para:
-// LogoDespertarCidadania.png
-// SeloESGAgriFamiliar.png
+// IMPORTAÇÃO DAS LOGOS - CONFIRMADO: Caminho '..assets/' e Nomes sem espaços
 // ============================================================================
 import idcLogo from '../assets/LogoDespertarCidadania.png'; 
 import seloEsg from '../assets/SeloESGAgriFamiliar.png';   
