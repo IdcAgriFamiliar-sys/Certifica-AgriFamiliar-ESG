@@ -10,7 +10,7 @@ interface CabeçalhoProps {
   onLogout: () => void;
 }
 
-const Cabeçalho: React.FC<CabeçalhoProps> = ({ activeViewName, userRole, onLogout }) => {
+const Cabeçalho: React.FC<CabecalhoProps> = ({ activeViewName, userRole, onLogout }) => {
   return (
     <header className="bg-white shadow-md p-4 flex justify-between items-center">
       <h1 className="text-2xl font-semibold text-gray-800">{activeViewName}</h1>
