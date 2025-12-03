@@ -1,213 +1,98 @@
-// src/components/FarmerRegistrationForm.tsx
-
 import React, { useState } from 'react';
-import { UserPlus, FileText, XCircle } from 'lucide-react';
-import CustomModal from './CustomModal'; // Importação do modal
-import FileUploadZone from './FileUploadZone'; // Importação do uploader
+import CustomModal from './CustomModal';
+import FileUploadZone from './FileUploadZone';
 
-// TIPOS NECESSÁRIOS (Você precisará garantir que todos os tipos (interface) 
-// como FarmerRegistration, UploadedDocument, e generateId estejam acessíveis. 
-// Para simplificar agora, vamos colocá-los temporariamente aqui.)
-
-interface UploadedDocument {
-  id: string;
-  name: string;
-  type: string;
-  uploadedAt: number;
-  uploadedBy: string;
+interface FarmerRegistrationFormProps {
+    isOpen: boolean;
+    onClose: () => void;
 }
 
-interface FarmerRegistration {
-  id: string;
-  nome: string;
-  cpf: string;
-  cnpjMEI?: string;
-  endereco: string;
-  dapCaf: string;
-  nomePropriedade: string;
-  tamanhoHectares: number;
-  whatsapp: string;
-  email: string;
-  documents: UploadedDocument[];
-  status: 'Pendente' | 'Aprovado' | 'Rejeitado';
-  createdAt: number;
-}
+const FarmerRegistrationForm: React.FC<FarmerRegistrationFormProps> = ({ isOpen, onClose }) => {
+    const [name, setName] = useState('');
+    const [cpf, setCpf] = useState('');
+    const [address, setAddress] = useState('');
+    const [productionType, setProductionType] = useState('');
+    const [file, setFile] = useState<File | null>(null);
 
-const generateId = (): string => {
-  return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-};
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
 
+        const data = {
+            name,
+            cpf,
+            address,
+            productionType,
+            file,
+        };
 
-// ============================================================================
-// FORMULÁRIO DE CADASTRO DE AGRICULTOR
-// ============================================================================
-const FarmerRegistrationForm: React.FC<{
-  onClose: () => void;
-  onSubmit: (data: FarmerRegistration) => void;
-}> = ({ onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    nome: '',
-    cpf: '',
-    cnpjMEI: '',
-    endereco: '',
-    dapCaf: '',
-    nomePropriedade: '',
-    tamanhoHectares: '',
-    whatsapp: '',
-    email: ''
-  });
-  const [documents, setDocuments] = useState<UploadedDocument[]>([]);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', message: '', type: 'error' as const });
-
-  const handleFilesSelected = (files: File[]) => {
-    const newDocs: UploadedDocument[] = files.map(file => ({
-      id: generateId(),
-      name: file.name,
-      type: file.type,
-      uploadedAt: Date.now(),
-      uploadedBy: 'farmer'
-    }));
-    setDocuments([...documents, ...newDocs]);
-  };
-
-  const handleSubmit = () => {
-    // 1. Validação com CustomModal
-    if (!formData.nome || !formData.cpf || !formData.email) {
-      setModalContent({
-        title: 'Campos Obrigatórios',
-        message: 'Por favor, preencha todos os campos obrigatórios (Nome Completo, CPF e E-mail) antes de enviar o cadastro.',
-        type: 'error'
-      });
-      setIsModalOpen(true);
-      return;
-    }
-
-    const registration: FarmerRegistration = {
-      id: generateId(),
-      nome: formData.nome,
-      cpf: formData.cpf,
-      cnpjMEI: formData.cnpjMEI,
-      endereco: formData.endereco,
-      dapCaf: formData.dapCaf,
-      nomePropriedade: formData.nomePropriedade,
-      tamanhoHectares: parseFloat(formData.tamanhoHectares) || 0,
-      whatsapp: formData.whatsapp,
-      email: formData.email,
-      documents,
-      status: 'Pendente',
-      createdAt: Date.now()
+        console.log("Dados enviados:", data);
+        onClose();
     };
 
-    onSubmit(registration);
-    onClose(); 
-  };
+    return (
+        <CustomModal isOpen={isOpen} onClose={onClose} title="Cadastrar Agricultor Familiar">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+                
+                {/* NOME */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Nome completo</label>
+                    <input
+                        type="text"
+                        className="mt-1 w-full border rounded-lg p-2"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Ex: João da Silva"
+                        required
+                    />
+                </div>
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full my-8">
-        {/* CABEÇALHO DO FORMULÁRIO */}
-        <div className="bg-gradient-to-r from-green-600 to-indigo-600 text-white p-6 rounded-t-lg">
-          <h2 className="flex items-center gap-3 text-2xl font-bold">
-            <UserPlus size={32} />
-            Cadastro de Agricultor(a)
-          </h2>
-        </div>
+                {/* CPF */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">CPF</label>
+                    <input
+                        type="text"
+                        className="mt-1 w-full border rounded-lg p-2"
+                        value={cpf}
+                        onChange={(e) => setCpf(e.target.value)}
+                        placeholder="000.000.000-00"
+                        required
+                    />
+                </div>
 
-        <div className="p-6 max-h-[70vh] overflow-y-auto">
-          <div className="grid md:grid-cols-2 gap-4 mb-6">
-            {/* Campos do formulário... (código omitido por brevidade, use o código que estava no seu App.tsx) */}
-            
-            {/* ...Nome, CPF, CNPJ, Endereço, etc. ... */}
-            
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium">Nome Completo *</label>
-              <input type="text" value={formData.nome} onChange={(e) => setFormData({ ...formData, nome: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">CPF *</label>
-              <input type="text" value={formData.cpf} onChange={(e) => setFormData({ ...formData, cpf: e.target.value })} placeholder="000.000.000-00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">CNPJ MEI (se tiver)</label>
-              <input type="text" value={formData.cnpjMEI} onChange={(e) => setFormData({ ...formData, cnpjMEI: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">DAP ou CAF</label>
-              <input type="text" value={formData.dapCaf} onChange={(e) => setFormData({ ...formData, dapCaf: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div className="md:col-span-2">
-              <label className="block text-gray-700 mb-2 font-medium">Endereço Completo</label>
-              <input type="text" value={formData.endereco} onChange={(e) => setFormData({ ...formData, endereco: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">Nome da Propriedade</label>
-              <input type="text" value={formData.nomePropriedade} onChange={(e) => setFormData({ ...formData, nomePropriedade: e.target.value })} placeholder="Ex: Sítio Esperança" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">Tamanho da Propriedade (hectares)</label>
-              <input type="number" step="0.01" value={formData.tamanhoHectares} onChange={(e) => setFormData({ ...formData, tamanhoHectares: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">WhatsApp *</label>
-              <input type="tel" value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} placeholder="(00) 00000-0000" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-             <div>
-              <label className="block text-gray-700 mb-2 font-medium">E-mail *</label>
-              <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition" />
-            </div>
-          </div>
+                {/* ENDEREÇO */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Endereço</label>
+                    <input
+                        type="text"
+                        className="mt-1 w-full border rounded-lg p-2"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Localidade, Município"
+                        required
+                    />
+                </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-3 font-medium">Documentos (CPF, RG, CAF/DAP)</label>
-            {/* USO DO COMPONENTE DE UPLOAD */}
-            <FileUploadZone onFilesSelected={handleFilesSelected} /> 
-            {documents.length > 0 && (
-              <div className="mt-3 space-y-2">
-                {documents.map(doc => (
-                  <div key={doc.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <span className="text-sm text-gray-700 flex items-center gap-2"><FileText size={16} />{doc.name}</span>
-                    <button
-                      onClick={() => setDocuments(documents.filter(d => d.id !== doc.id))}
-                      className="text-red-600 hover:text-red-800 transition"
+                {/* TIPO DE PRODUÇÃO */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Tipo de Produção</label>
+                    <select
+                        className="mt-1 w-full border rounded-lg p-2"
+                        value={productionType}
+                        onChange={(e) => setProductionType(e.target.value)}
+                        required
                     >
-                      <XCircle size={18} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* BOTÕES DE AÇÃO */}
-        <div className="bg-gray-50 px-6 py-4 flex gap-3 justify-end rounded-b-lg">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors shadow-sm"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
-          >
-            Enviar Cadastro
-          </button>
-        </div>
-      </div>
-      
-      {/* USO DO COMPONENTE MODAL */}
-      <CustomModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={modalContent.title}
-        message={modalContent.message}
-        type={modalContent.type}
-      />
-    </div>
-  );
-};
+                        <option value="">Selecione...</option>
+                        <option value="hortalicas">Hortaliças</option>
+                        <option value="frutas">Fruticultura</option>
+                        <option value="leite">Produção de Leite</option>
+                        <option value="agroecologico">Sistema Agroecológico</option>
+                    </select>
+                </div>
 
-export default FarmerRegistrationForm;
+                {/* ARQUIVOS */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Documentos do Agricultor</label>
+                    <FileUploadZone onFileSelect={setFile} />
+                </div>
+
+                {/* BO*
