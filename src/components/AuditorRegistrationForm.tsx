@@ -2,177 +2,102 @@
 
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
-import CustomModal from "./CustomModal";
-
-interface UploadedFiles {
-  rg?: File | null;
-  cpf?: File | null;
-  certidaoMunicipal?: File | null;
-  certidaoEstadual?: File | null;
-  certidaoFederal?: File | null;
-  cndt?: File | null;
-  fgts?: File | null;
-  diploma?: File | null;
-  registroProfissional?: File | null;
-  comprovanteEndereco?: File | null;
-  curriculo?: File | null;
-}
 
 const AuditorRegistrationForm: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [uploaded, setUploaded] = useState<UploadedFiles>({});
-  const [step, setStep] = useState(1);
-
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     nome: "",
     email: "",
     telefone: "",
-    conselho: "",
-    numeroRegistro: ""
+    cpf: "",
+    registroProfissional: "",
+    endereco: "",
   });
 
-  const updateFile = (key: keyof UploadedFiles, file: File | null) => {
-    setUploaded((prev) => ({ ...prev, [key]: file }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    setModalOpen(true);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-    console.log("DADOS ENVIADOS:", {
-      ...form,
-      documentos: uploaded,
-    });
+    alert("Cadastro enviado para análise! Você será contactado pelo administrador.");
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg mt-10">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
         Credenciamento de Auditor(a)
-      </h1>
+      </h2>
 
-      {/* ========================= ETAPA 1 ========================= */}
-      {step === 1 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4">Dados Pessoais</h2>
+      <form className="space-y-6" onSubmit={handleSubmit}>
 
-          <label className="block mb-3">
-            <span className="text-gray-700">Nome Completo</span>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 border rounded-md"
-              value={form.nome}
-              onChange={(e) =>
-                setForm({ ...form, nome: e.target.value })
-              }
-            />
-          </label>
+        {/* Dados Pessoais */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-700">Dados Pessoais</h3>
 
-          <label className="block mb-3">
-            <span className="text-gray-700">E-mail</span>
-            <input
-              type="email"
-              className="w-full mt-1 p-2 border rounded-md"
-              value={form.email}
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
-            />
-          </label>
+          <input
+            type="text"
+            name="nome"
+            placeholder="Nome completo"
+            value={formData.nome}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+            required
+          />
 
-          <label className="block mb-3">
-            <span className="text-gray-700">Telefone</span>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 border rounded-md"
-              value={form.telefone}
-              onChange={(e) =>
-                setForm({ ...form, telefone: e.target.value })
-              }
-            />
-          </label>
+          <input
+            type="email"
+            name="email"
+            placeholder="E-mail"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+            required
+          />
 
-          <label className="block mb-3">
-            <span className="text-gray-700">Conselho Profissional</span>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 border rounded-md"
-              placeholder="CREA, CRBio, CRMV..."
-              value={form.conselho}
-              onChange={(e) =>
-                setForm({ ...form, conselho: e.target.value })
-              }
-            />
-          </label>
+          <input
+            type="text"
+            name="telefone"
+            placeholder="Telefone"
+            value={formData.telefone}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+          />
 
-          <label className="block mb-6">
-            <span className="text-gray-700">Número de Registro</span>
-            <input
-              type="text"
-              className="w-full mt-1 p-2 border rounded-md"
-              value={form.numeroRegistro}
-              onChange={(e) =>
-                setForm({ ...form, numeroRegistro: e.target.value })
-              }
-            />
-          </label>
+          <input
+            type="text"
+            name="cpf"
+            placeholder="CPF"
+            value={formData.cpf}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+            required
+          />
 
-          <button
-            onClick={() => setStep(2)}
-            className="w-full py-2 mt-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
-          >
-            Avançar para Envio de Documentos
-          </button>
-        </>
-      )}
+          <input
+            type="text"
+            name="registroProfissional"
+            placeholder="Registro Profissional (CREA/CRBio/CRQ/Outro)"
+            value={formData.registroProfissional}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+            required
+          />
 
-      {/* ========================= ETAPA 2 ========================= */}
-      {step === 2 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4">
-            Envio de Documentos Obrigatórios
-          </h2>
+          <input
+            type="text"
+            name="endereco"
+            placeholder="Endereço completo"
+            value={formData.endereco}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-lg"
+          />
+        </div>
 
-          <div className="space-y-4">
-            <FileUploadZone label="RG" onFileSelect={(file) => updateFile("rg", file)} />
-            <FileUploadZone label="CPF" onFileSelect={(file) => updateFile("cpf", file)} />
-            <FileUploadZone label="Certidão Negativa Municipal" onFileSelect={(file) => updateFile("certidaoMunicipal", file)} />
-            <FileUploadZone label="Certidão Negativa Estadual" onFileSelect={(file) => updateFile("certidaoEstadual", file)} />
-            <FileUploadZone label="Certidão Negativa Federal" onFileSelect={(file) => updateFile("certidaoFederal", file)} />
-            <FileUploadZone label="CNDT Trabalhista" onFileSelect={(file) => updateFile("cndt", file)} />
-            <FileUploadZone label="Regularidade FGTS (CRF)" onFileSelect={(file) => updateFile("fgts", file)} />
-            <FileUploadZone label="Diploma" onFileSelect={(file) => updateFile("diploma", file)} />
-            <FileUploadZone label="Registro Profissional" onFileSelect={(file) => updateFile("registroProfissional", file)} />
-            <FileUploadZone label="Comprovante de Endereço" onFileSelect={(file) => updateFile("comprovanteEndereco", file)} />
-            <FileUploadZone label="Currículo" onFileSelect={(file) => updateFile("curriculo", file)} />
-          </div>
+        {/* Documentos Obrigatórios */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-700">Documentos Obrigatórios</h3>
 
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={() => setStep(1)}
-              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-            >
-              Voltar
-            </button>
-
-            <button
-              onClick={handleSubmit}
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Enviar Credenciamento
-            </button>
-          </div>
-        </>
-      )}
-
-      <CustomModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        type="success"
-        title="Credenciamento Enviado!"
-        message="Sua solicitação foi enviada e será analisada pela equipe do Certifica AgriFamiliar ESG."
-      />
-    </div>
-  );
-};
-
-export default AuditorRegistrationForm;
+          <FileUploadZone label="Documento de Identidade (RG)" />
+          <FileUploadZone label="Cadastro de Pessoa Física (CPF)" />
+          <FileUploadZone label="Certidões Negativas (Municipal, Estadual, Federal)" />
