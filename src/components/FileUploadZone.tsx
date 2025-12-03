@@ -1,92 +1,42 @@
-// src/components/FileUploadZone.tsx
-
-import React, { useRef } from 'react';
-import { Upload, X } from 'lucide-react';
+import React from "react";
 
 interface FileUploadZoneProps {
   label: string;
-  files: File[];
-  onFilesChange: (files: File[]) => void;
+  onFilesSelected: (files: FileList) => void;
+  accept?: string;
   multiple?: boolean;
 }
 
 const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   label,
-  files,
-  onFilesChange,
-  multiple = true,
+  onFilesSelected,
+  accept = "*",
+  multiple = false,
 }) => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleSelectFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) return;
-
-    const selectedFiles = Array.from(event.target.files);
-    const updated = multiple ? [...files, ...selectedFiles] : selectedFiles;
-
-    onFilesChange(updated);
-  };
-
-  const removeFile = (index: number) => {
-    const updated = files.filter((_, i) => i !== index);
-    onFilesChange(updated);
-  };
-
-  const openFileDialog = () => {
-    inputRef.current?.click();
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      onFilesSelected(e.target.files);
+    }
   };
 
   return (
-    <div className="w-full">
-      <p className="font-medium text-gray-700 mb-2">{label}</p>
+    <div className="w-full my-3">
+      <label className="block text-gray-700 font-medium mb-1">{label}</label>
 
-      <div
-        className="border-2 border-dashed border-gray-300 p-6 rounded-lg cursor-pointer hover:border-blue-600 transition"
-        onClick={openFileDialog}
-      >
+      <div className="border border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer transition">
         <input
-          ref={inputRef}
           type="file"
+          accept={accept}
           multiple={multiple}
-          className="hidden"
-          onChange={handleSelectFiles}
+          onChange={handleFileChange}
+          className="w-full"
         />
-
-        <div className="flex flex-col items-center text-gray-600">
-          <Upload className="w-8 h-8 mb-2" />
-          <p className="text-sm text-center">
-            Clique para selecionar arquivos<br />
-            <span className="text-xs text-gray-500">
-              (PDF, JPG, PNG, DOC, etc.)
-            </span>
-          </p>
-        </div>
       </div>
 
-      {/* Lista de arquivos selecionados */}
-      {files.length > 0 && (
-        <ul className="mt-3 space-y-2">
-          {files.map((file, index) => (
-            <li
-              key={index}
-              className="flex justify-between items-center bg-gray-100 p-2 rounded-md"
-            >
-              <span className="text-sm truncate max-w-[80%]">{file.name}</span>
-
-              <button
-                type="button"
-                className="text-red-600 hover:text-red-800"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeFile(index);
-                }}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <p className="text-sm text-gray-500 mt-1">
+        Arquivos aceitos: {accept === "*" ? "qualquer formato" : accept}
+      </p>
     </div>
   );
 };
