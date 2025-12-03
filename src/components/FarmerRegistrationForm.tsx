@@ -1,4 +1,3 @@
-// src/componentes/FarmerRegistrationForm.tsx
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
 
@@ -21,7 +20,7 @@ const FarmerRegistrationForm: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validate = (): string | null => {
+  const validate = () => {
     if (!formData.nome.trim()) return "Nome é obrigatório.";
     if (!formData.email.trim()) return "E-mail é obrigatório.";
     if (!formData.cpf.trim()) return "CPF é obrigatório.";
@@ -31,13 +30,10 @@ const FarmerRegistrationForm: React.FC = () => {
     return null;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const err = validate();
-    if (err) {
-      alert(err);
-      return;
-    }
+    if (err) return alert(err);
 
     const preview = {
       ...formData,
@@ -55,3 +51,31 @@ const FarmerRegistrationForm: React.FC = () => {
       <div className="p-6 text-center">
         <h2 className="text-xl font-bold text-green-700">Cadastro enviado!</h2>
         <p className="text-gray-600 mt-2">A equipe analisará e entrará em contato.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4">Cadastro de Agricultor(a)</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input name="nome" placeholder="Nome completo" value={formData.nome} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="email" type="email" placeholder="E-mail" value={formData.email} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="telefone" placeholder="Telefone" value={formData.telefone} onChange={handleChange} className="w-full p-3 border rounded" />
+        <input name="cpf" placeholder="CPF" value={formData.cpf} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="caf" placeholder="Número do CAF" value={formData.caf} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="endereco" placeholder="Endereço" value={formData.endereco} onChange={handleChange} className="w-full p-3 border rounded" />
+
+        <FileUploadZone label="RG/CPF (arquivo) *" accept=".pdf,.jpg,.png" multiple onFilesSelected={setRgCpfFiles} />
+        <FileUploadZone label="CAF (arquivo) *" accept=".pdf" onFilesSelected={setCafFiles} />
+        <FileUploadZone label="Comprovante de Endereço" accept=".pdf,.jpg,.png" onFilesSelected={setEnderecoFiles} />
+
+        <div className="flex gap-3 justify-end">
+          <button type="submit" className="px-6 py-2 bg-green-700 text-white rounded">Enviar cadastro</button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default FarmerRegistrationForm;
