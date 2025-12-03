@@ -1,28 +1,24 @@
 import React, { useState } from "react";
-import Cabeçalho from "./Cabeçalho";
-import type { UserRole } from "../App";
+import Header from "./Header";
 
-// Import placeholders, caso os Painéis não existam
-let CertificationsView: any, FarmersView: any, AuditorsView: any, AuditsView: any, FinancesView: any, BatchesView: any, ReportsView: any, SettingsView: any;
-try {
-  CertificationsView = require("./Painel/CertificationsView").default;
-  FarmersView = require("./Painel/FarmersView").default;
-  AuditorsView = require("./Painel/AuditorsView").default;
-  AuditsView = require("./Painel/AuditsView").default;
-  FinancesView = require("./Painel/FinancesView").default;
-  BatchesView = require("./Painel/BatchesView").default;
-  ReportsView = require("./Painel/ReportsView").default;
-  SettingsView = require("./Painel/SettingsView").default;
-} catch (e) {}
+// Importação direta dos painéis, substitua pelos seus componentes reais
+import CertificationsView from "./Dashboard/CertificationsView";
+import FarmersView from "./Dashboard/FarmersView";
+import AuditorsView from "./Dashboard/AuditorsView";
+import AuditsView from "./Dashboard/AuditsView";
+import FinancesView from "./Dashboard/FinancesView";
+import BatchesView from "./Dashboard/BatchesView";
+import ReportsView from "./Dashboard/ReportsView";
+import SettingsView from "./Dashboard/SettingsView";
+
+type UserRole = "admin" | "gestor" | "coordenador";
 
 interface Props {
   userRole: UserRole;
   onLogout: () => void;
-  setUserRole: (r: UserRole) => void;
-  go?: (page: any) => void;
 }
 
-const navByRole: Record<string, Array<{ id: string; label: string }>> = {
+const navByRole: Record<UserRole, Array<{ id: string; label: string }>> = {
   admin: [
     { id: "cert", label: "Certificações" },
     { id: "farmers", label: "Agricultores" },
@@ -73,8 +69,7 @@ const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Cabeçalho userRole={userRole} onLogout={onLogout} />
-
+      <Header userRole={userRole} onLogout={onLogout} />
       <div className="flex flex-1">
         <nav className="w-64 bg-gray-100 p-4 border-r">
           {navByRole[userRole].map((item) => (
@@ -89,11 +84,10 @@ const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
             </button>
           ))}
         </nav>
-
         <main className="flex-1 p-6 bg-white">{renderPanel()}</main>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+expo
