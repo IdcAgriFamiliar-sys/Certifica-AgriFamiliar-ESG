@@ -101,3 +101,22 @@ const AuditorRegistrationForm: React.FC = () => {
           <FileUploadZone label="Documento de Identidade (RG)" />
           <FileUploadZone label="Cadastro de Pessoa Física (CPF)" />
           <FileUploadZone label="Certidões Negativas (Municipal, Estadual, Federal)" />
+          <FileUploadZone label="CND Trabalhista e FGTS" />
+          <FileUploadZone label="Diploma ou Comprovação de Formação" />
+          <FileUploadZone label="Currículo (PDF)" />
+          <FileUploadZone label="Comprovante de Endereço" />
+        </div>
+
+        {/* Botão */}
+        <button
+          type="submit"
+          className="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-medium shadow-md transition"
+        >
+          Enviar Credenciamento
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default AuditorRegistrationForm;
