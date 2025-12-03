@@ -13,6 +13,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    
+    // CORREÇÃO: Adicionando o tipo do Vite para resolver import.meta.env
+    "types": ["vite/client"], 
 
     /* Linting */
     "strict": true,
@@ -20,7 +23,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  // INCLUINDO APENAS OS ARQUIVOS DA PASTA SRC
-  "include": ["src"] 
-  // A linha "references" que causava o erro TS6053 foi removida.
+  "include": ["src"]
 }
