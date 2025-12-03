@@ -2,12 +2,19 @@
 
 import React, { useState } from 'react';
 
-// CAMINHOS CORRIGIDOS
+// Componentes existentes na pasta components
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
-export type UserRole = 'agricultor' | 'auditor' | 'admin' | 'guest';
+// Agora com todas as roles do sistema
+export type UserRole =
+  | 'admin'
+  | 'gestor'
+  | 'coordenador'
+  | 'auditor'
+  | 'agricultor'
+  | 'guest';
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole>('guest');
@@ -25,6 +32,7 @@ const App: React.FC = () => {
 
   let content;
 
+  // Usuário logado → vai para dashboard
   if (isLoggedIn && userRole !== 'guest') {
     content = (
       <Dashboard
@@ -33,9 +41,13 @@ const App: React.FC = () => {
         setUserRole={setUserRole}
       />
     );
-  } else if (window.location.pathname === '/login') {
+  }
+  // Tela de login
+  else if (window.location.pathname === '/login') {
     content = <Login onLogin={handleLogin} />;
-  } else {
+  }
+  // Tela pública inicial
+  else {
     content = <LandingPage />;
   }
 
