@@ -1,4 +1,3 @@
-// src/componentes/AuditorRegistrationForm.tsx
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
 
@@ -7,45 +6,25 @@ const AuditorRegistrationForm: React.FC = () => {
     nome: "",
     email: "",
     telefone: "",
-    cpf: "",
-    conselho: "",
-    registroConselho: "",
-    endereco: "",
+    registroProfissional: "",
   });
 
-  const [rgFiles, setRgFiles] = useState<FileList | null>(null);
-  const [cpfFiles, setCpfFiles] = useState<FileList | null>(null);
-  const [municipalFiles, setMunicipalFiles] = useState<FileList | null>(null);
-  const [estadualFiles, setEstadualFiles] = useState<FileList | null>(null);
-  const [federalFiles, setFederalFiles] = useState<FileList | null>(null);
-  const [cndtFiles, setCndtFiles] = useState<FileList | null>(null);
-  const [fgtsFiles, setFgtsFiles] = useState<FileList | null>(null);
-  const [diplomaFiles, setDiplomaFiles] = useState<FileList | null>(null);
+  const [rgCpfFiles, setRgCpfFiles] = useState<FileList | null>(null);
   const [registroFiles, setRegistroFiles] = useState<FileList | null>(null);
-  const [enderecoFiles, setEnderecoFiles] = useState<FileList | null>(null);
-  const [curriculoFiles, setCurriculoFiles] = useState<FileList | null>(null);
-
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const validate = () => {
-    if (!formData.nome) return "Preencha o nome.";
-    if (!formData.email) return "Preencha o e-mail.";
-    if (!formData.cpf) return "Preencha o CPF.";
-    if (!formData.conselho) return "Informe o conselho.";
-    if (!formData.registroConselho) return "Informe o número de registro.";
-    if (!rgFiles || rgFiles.length === 0) return "Anexe o RG.";
-    if (!cpfFiles || cpfFiles.length === 0) return "Anexe o CPF.";
-    if (!municipalFiles || municipalFiles.length === 0) return "Anexe certidão municipal.";
-    if (!estadualFiles || estadualFiles.length === 0) return "Anexe certidão estadual.";
-    if (!federalFiles || federalFiles.length === 0) return "Anexe certidão federal.";
-    if (!cndtFiles || cndtFiles.length === 0) return "Anexe CNDT.";
-    if (!fgtsFiles || fgtsFiles.length === 0) return "Anexe FGTS/CRF.";
-    if (!diplomaFiles || diplomaFiles.length === 0) return "Anexe diploma.";
-    if (!registroFiles || registroFiles.length === 0) return "Anexe registro profissional.";
-    if (!curriculoFiles || curriculoFiles.length === 0) return "Anexe currículo.";
+    if (!formData.nome.trim()) return "Nome é obrigatório.";
+    if (!formData.email.trim()) return "E-mail é obrigatório.";
+    if (!formData.registroProfissional.trim())
+      return "Registro profissional é obrigatório.";
+    if (!rgCpfFiles || rgCpfFiles.length === 0) return "Anexe RG/CPF (arquivo).";
+    if (!registroFiles || registroFiles.length === 0)
+      return "Anexe registro profissional (arquivo).";
     return null;
   };
 
@@ -56,10 +35,83 @@ const AuditorRegistrationForm: React.FC = () => {
 
     const preview = {
       ...formData,
-      rg: rgFiles ? Array.from(rgFiles).map((f) => f.name) : [],
-      cpf: cpfFiles ? Array.from(cpfFiles).map((f) => f.name) : [],
-      municipal: municipalFiles ? Array.from(municipalFiles).map((f) => f.name) : [],
-      estadual: estadualFiles ? Array.from(estadualFiles).map((f) => f.name) : [],
-      federal: federalFiles ? Array.from(federalFiles).map((f) => f.name) : [],
-      cndt: cndtFiles ? Array.from(cndtFiles).map((f) => f.name) : [],
-      fgts: fgtsFiles ? Array.from(fgtsFiles).map((f) => f.name) : [],
+      rgCpfFiles: rgCpfFiles ? Array.from(rgCpfFiles).map((f) => f.name) : [],
+      registroFiles: registroFiles ? Array.from(registroFiles).map((f) => f.name) : [],
+    };
+
+    console.log("Cadastro auditor (preview):", preview);
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-bold text-green-700">Cadastro enviado!</h2>
+        <p className="text-gray-600 mt-2">A equipe analisará e entrará em contato.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4">Credenciamento de Auditor(a)</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          name="nome"
+          placeholder="Nome completo"
+          value={formData.nome}
+          onChange={handleChange}
+          className="w-full p-3 border rounded"
+          required
+        />
+        <input
+          name="email"
+          type="email"
+          placeholder="E-mail"
+          value={formData.email}
+          onChange={handleChange}
+          className="w-full p-3 border rounded"
+          required
+        />
+        <input
+          name="telefone"
+          placeholder="Telefone"
+          value={formData.telefone}
+          onChange={handleChange}
+          className="w-full p-3 border rounded"
+        />
+        <input
+          name="registroProfissional"
+          placeholder="Registro Profissional"
+          value={formData.registroProfissional}
+          onChange={handleChange}
+          className="w-full p-3 border rounded"
+          required
+        />
+
+        <FileUploadZone
+          label="RG/CPF (arquivo) *"
+          accept=".pdf,.jpg,.png"
+          multiple
+          onFilesSelected={setRgCpfFiles}
+        />
+        <FileUploadZone
+          label="Registro profissional *"
+          accept=".pdf"
+          onFilesSelected={setRegistroFiles}
+        />
+
+        <div className="flex gap-3 justify-end">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-blue-700 text-white rounded"
+          >
+            Enviar cadastro
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default AuditorRegistrationForm;
