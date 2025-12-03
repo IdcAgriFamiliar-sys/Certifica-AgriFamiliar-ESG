@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import LandingPage from "./components/LandingPage";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
-import AuditorRegistrationForm from "./components/AuditorRegistrationForm";
+// CORREÇÃO TS2307: Adicionando a extensão .tsx a todas as importações de componentes
+import LandingPage from "./components/LandingPage.tsx";
+import Login from "./components/Login.tsx";
+import Dashboard from "./components/Dashboard.tsx";
+import FarmerRegistrationForm from "./components/FarmerRegistrationForm.tsx";
+import AuditorRegistrationForm from "./components/AuditorRegistrationForm.tsx";
 
 export type UserRole =
   | "admin"
