@@ -1,57 +1,66 @@
 // src/App.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 
-// Componentes existentes na pasta components
-import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
+// Importações corrigidas
+import LandingPage from "./components/LandingPage";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
 
-// Agora com todas as roles do sistema
-export type UserRole =
-  | 'admin'
-  | 'gestor'
-  | 'coordenador'
-  | 'auditor'
-  | 'agricultor'
-  | 'guest';
+export type UserRole = "agricultor" | "auditor" | "admin" | "guest";
 
 const App: React.FC = () => {
-  const [userRole, setUserRole] = useState<UserRole>('guest');
+  const [userRole, setUserRole] = useState<UserRole>("guest");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Controle simples de navegação (sem React Router)
+  const [currentPage, setCurrentPage] = useState<string>("landing");
 
   const handleLogin = (role: UserRole) => {
     setUserRole(role);
     setIsLoggedIn(true);
+    setCurrentPage("dashboard");
   };
 
   const handleLogout = () => {
-    setUserRole('guest');
+    setUserRole("guest");
     setIsLoggedIn(false);
+    setCurrentPage("landing");
   };
 
-  let content;
+  // Caso o usuário tente acessar /login digitando direto na URL
+  useEffect(() => {
+    if (window.location.pathname === "/login") {
+      setCurrentPage("login");
+    }
+  }, []);
 
-  // Usuário logado → vai para dashboard
-  if (isLoggedIn && userRole !== 'guest') {
-    content = (
-      <Dashboard
-        userRole={userRole}
-        onLogout={handleLogout}
-        setUserRole={setUserRole}
+  // Renderização baseada na página atual
+  const renderPage = () => {
+    if (isLoggedIn && userRole !== "guest") {
+      return (
+        <Dashboard
+          userRole={userRole}
+          onLogout={handleLogout}
+          setUserRole={setUserRole}
+        />
+      );
+    }
+
+    if (currentPage === "login") {
+      return <Login onLogin={handleLogin} />;
+    }
+
+    return (
+      <LandingPage
+        goToLogin={() => setCurrentPage("login")}
+        goToRegisterFarmer={() => setCurrentPage("login")}
+        goToRegisterAuditor={() => setCurrentPage("login")}
       />
     );
-  }
-  // Tela de login
-  else if (window.location.pathname === '/login') {
-    content = <Login onLogin={handleLogin} />;
-  }
-  // Tela pública inicial
-  else {
-    content = <LandingPage />;
-  }
+  };
 
-  return <div className="App">{content}</div>;
+  return <div className="App">{renderPage()}</div>;
 };
 
 export default App;
