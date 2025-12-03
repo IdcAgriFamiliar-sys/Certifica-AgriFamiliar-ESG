@@ -3,20 +3,30 @@
 import React from 'react';
 import { AlertCircle, XCircle, CheckCircle } from 'lucide-react';
 
-// Tipos devem ser definidos ou importados de um arquivo de tipos
-export type ModalType = 'info' | 'warning' | 'error' | 'success' | 'confirm';
+export type ModalType =
+  | 'info'
+  | 'warning'
+  | 'error'
+  | 'success'
+  | 'confirm';
 
-// ============================================================================
-// COMPONENTE MODAL PERSONALIZADO
-// ============================================================================
-const CustomModal: React.FC<{
-  isOpen: boolean;
+interface ModalProps {
+  isOpen?: boolean;
   onClose: () => void;
   onConfirm?: () => void;
   title: string;
   message: string;
   type?: ModalType;
-}> = ({ isOpen, onClose, onConfirm, title, message, type = 'info' }) => {
+}
+
+const CustomModal: React.FC<ModalProps> = ({
+  isOpen = false,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  type = 'info'
+}) => {
   if (!isOpen) return null;
 
   const typeColors = {
@@ -37,16 +47,21 @@ const CustomModal: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className={`bg-white rounded-lg shadow-xl max-w-md w-full border-2 ${typeColors[type]}`}>
+      <div
+        className={`bg-white rounded-lg shadow-xl max-w-md w-full border-2 ${typeColors[type]}`}
+      >
         <div className="p-6">
           <div className="flex items-start gap-4">
             {typeIcons[type]}
             <div className="flex-1">
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">{title}</h3>
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                {title}
+              </h3>
               <p className="text-gray-700">{message}</p>
             </div>
           </div>
         </div>
+
         <div className="bg-gray-50 px-6 py-4 flex gap-3 justify-end rounded-b-lg">
           {onConfirm ? (
             <>
@@ -56,6 +71,7 @@ const CustomModal: React.FC<{
               >
                 Cancelar
               </button>
+
               <button
                 onClick={() => {
                   onConfirm();
