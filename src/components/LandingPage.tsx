@@ -3,7 +3,6 @@
 import React from 'react';
 import { Leaf, Award, FileText, ArrowRight } from 'lucide-react';
 
-// CORREÇÃO: Caminhos de importação de assets corrigidos
 import logoDespertarCidadania from '../assets/LogoDespertarCidadania.png';
 import seloESGAgriFamiliar from '../assets/SeloESGAgriFamiliar.png';
 
