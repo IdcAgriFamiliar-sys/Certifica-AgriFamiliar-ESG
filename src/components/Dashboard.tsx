@@ -1,38 +1,19 @@
-// src/componentes/Dashboard.tsx
 import React, { useState } from "react";
 import Cabeçalho from "./Cabeçalho";
 import type { UserRole } from "../App";
 
-// Tentativa de importar as views do Painel — se não existirem, usamos placeholders
-let CertificationsView: any,
-  FarmersView: any,
-  AuditorsView: any,
-  AuditsView: any,
-  FinancesView: any,
-  BatchesView: any,
-  ReportsView: any,
-  SettingsView: any;
-
+// Import placeholders, caso os Painéis não existam
+let CertificationsView: any, FarmersView: any, AuditorsView: any, AuditsView: any, FinancesView: any, BatchesView: any, ReportsView: any, SettingsView: any;
 try {
-  // @ts-ignore
   CertificationsView = require("./Painel/CertificationsView").default;
-  // @ts-ignore
   FarmersView = require("./Painel/FarmersView").default;
-  // @ts-ignore
   AuditorsView = require("./Painel/AuditorsView").default;
-  // @ts-ignore
   AuditsView = require("./Painel/AuditsView").default;
-  // @ts-ignore
   FinancesView = require("./Painel/FinancesView").default;
-  // @ts-ignore
   BatchesView = require("./Painel/BatchesView").default;
-  // @ts-ignore
   ReportsView = require("./Painel/ReportsView").default;
-  // @ts-ignore
   SettingsView = require("./Painel/SettingsView").default;
-} catch (e) {
-  // ignore — placeholders serão usados
-}
+} catch (e) {}
 
 interface Props {
   userRole: UserRole;
@@ -61,45 +42,58 @@ const navByRole: Record<string, Array<{ id: string; label: string }>> = {
   coordenador: [
     { id: "audits", label: "Auditorias" },
     { id: "reports", label: "Relatórios" },
-    { id: "farmers", label: "Agricultores" },
-  ],
-  auditor: [
-    { id: "audits", label: "Auditorias" },
-    { id: "reports", label: "Relatórios" },
-  ],
-  agricultor: [
-    { id: "mycert", label: "Minhas Certificações" },
-    { id: "myaudits", label: "Minhas Auditorias" },
   ],
 };
 
 const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
-  const [active, setActive] = useState<string>(navByRole[userRole]?.[0]?.id || "cert");
+  const [selected, setSelected] = useState<string>("cert");
 
-  const renderActive = () => {
-    switch (active) {
+  const renderPanel = () => {
+    switch (selected) {
       case "cert":
-      case "mycert":
-        return CertificationsView ? <CertificationsView /> : <div className="p-6">(Certifications View)</div>;
+        return <CertificationsView />;
       case "farmers":
-        return FarmersView ? <FarmersView /> : <div className="p-6">(Farmers View)</div>;
+        return <FarmersView />;
       case "auditors":
-        return AuditorsView ? <AuditorsView /> : <div className="p-6">(Auditors View)</div>;
+        return <AuditorsView />;
       case "audits":
-      case "myaudits":
-        return AuditsView ? <AuditsView /> : <div className="p-6">(Audits View)</div>;
-      case "batches":
-        return BatchesView ? <BatchesView /> : <div className="p-6">(Batches View)</div>;
+        return <AuditsView />;
       case "finances":
-        return FinancesView ? <FinancesView /> : <div className="p-6">(Finances View)</div>;
+        return <FinancesView />;
+      case "batches":
+        return <BatchesView />;
       case "reports":
-        return ReportsView ? <ReportsView /> : <div className="p-6">(Reports View)</div>;
+        return <ReportsView />;
       case "settings":
-        return SettingsView ? <SettingsView /> : <div className="p-6">(Settings View)</div>;
+        return <SettingsView />;
       default:
-        return <div className="p-6">Bem-vindo ao Painel</div>;
+        return <div>Selecione um painel</div>;
     }
   };
 
   return (
-    <div className="flex min-h-screen"
+    <div className="min-h-screen flex flex-col">
+      <Cabeçalho userRole={userRole} onLogout={onLogout} />
+
+      <div className="flex flex-1">
+        <nav className="w-64 bg-gray-100 p-4 border-r">
+          {navByRole[userRole].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setSelected(item.id)}
+              className={`w-full text-left px-4 py-2 rounded mb-2 ${
+                selected === item.id ? "bg-green-700 text-white" : "hover:bg-gray-200"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <main className="flex-1 p-6 bg-white">{renderPanel()}</main>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
