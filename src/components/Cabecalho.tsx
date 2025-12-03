@@ -1,16 +1,16 @@
-// src/componentes/Cabeçalho.tsx
+// src/componentes/Cabecalho.tsx
 
 import React from 'react';
 import { LogOut } from 'lucide-react';
-import { UserRole } from '../App'; // Assumindo que App.tsx está um nível acima
+import { UserRole } from '../App';
 
-interface CabeçalhoProps {
+interface CabecalhoProps {
   activeViewName: string;
   userRole: UserRole;
   onLogout: () => void;
 }
 
-const Cabeçalho: React.FC<CabecalhoProps> = ({ activeViewName, userRole, onLogout }) => {
+const Cabecalho: React.FC<CabecalhoProps> = ({ activeViewName, userRole, onLogout }) => {
   return (
     <header className="bg-white shadow-md p-4 flex justify-between items-center">
       <h1 className="text-2xl font-semibold text-gray-800">{activeViewName}</h1>
@@ -30,4 +30,4 @@ const Cabeçalho: React.FC<CabecalhoProps> = ({ activeViewName, userRole, onLogo
   );
 };
 
-export default Cabeçalho;
+export default Cabecalho;
