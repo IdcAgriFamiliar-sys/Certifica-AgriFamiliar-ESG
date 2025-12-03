@@ -1,33 +1,39 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import logoDespertar from '../assets/LogoDespertarCidadania.png';
-import seloESG from '../assets/SeloESGAgriFamiliar.png';
+import React from "react";
+import { Link } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
-    const navigate = useNavigate();
+  return (
+    <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
 
-    return (
-        <div className="min-h-screen bg-green-50 flex flex-col items-center justify-center p-6">
+      <div className="max-w-2xl text-center">
+        <h1 className="text-4xl font-bold mb-4 text-green-700">
+          Certificação AgriFamiliar ESG
+        </h1>
 
-            {/* LOGO PRINCIPAL */}
-            <img
-                src={logoDespertar}
-                alt="Despertar Cidadania"
-                className="w-40 mb-4 drop-shadow-lg"
-            />
+        <p className="text-lg mb-6">
+          Plataforma para gestão sustentável, emissão de certificados e
+          valorização da agricultura familiar.
+        </p>
 
-            {/* TÍTULO */}
-            <h1 className="text-3xl font-bold text-green-800 text-center">
-                Certificação ESG para Agricultores Familiares
-            </h1>
+        <div className="flex flex-col gap-4">
+          <Link
+            to="/dashboard"
+            className="bg-green-600 text-white py-2 px-6 rounded hover:bg-green-700"
+          >
+            Acessar Dashboard
+          </Link>
 
-            {/* SUBTÍTULO */}
-            <p className="text-lg text-gray-700 mt-3 text-center max-w-lg">
-                Plataforma exclusiva para emissão, auditoria e gestão de certificações
-                socioambientais voltadas à agricultura familiar.
-            </p>
+          <Link
+            to="/register"
+            className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700"
+          >
+            Cadastro de Agricultores
+          </Link>
+        </div>
+      </div>
 
-            {/* SELO ESG */}
-            <img
-                src={seloESG}
+    </div>
+  );
+};
+
+export default LandingPage;
