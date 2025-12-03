@@ -1,17 +1,11 @@
 {
   "hosting": {
-    // 💡 CONFIRMADO: A pasta 'public' para o Firebase DEVE ser 'dist'
-    "public": "dist", 
-    
-    // Arquivos que o Firebase deve ignorar ao fazer o upload
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    
-    // 💡 Essencial para o React Router DOM (Single Page Application - SPA)
-    // Isso garante que todas as rotas (ex: /dashboard) carreguem o index.html
     "rewrites": [
       {
         "source": "**",
