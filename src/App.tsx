@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import LandingPage from "./componentes/LandingPage";
-import Login from "./componentes/Login";
-import Dashboard from "./componentes/Dashboard";
-import FarmerRegistrationForm from "./componentes/FarmerRegistrationForm";
-import AuditorRegistrationForm from "./componentes/AuditorRegistrationForm";
+import LandingPage from "./components/LandingPage";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
+import AuditorRegistrationForm from "./components/AuditorRegistrationForm";
 
 export type UserRole =
   | "admin"
@@ -28,8 +28,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const p = window.location.pathname;
     if (p === "/login") setPage("login");
-    if (p === "/farmer-register") setPage("farmer-register");
-    if (p === "/auditor-register") setPage("auditor-register");
+    else if (p === "/farmer-register") setPage("farmer-register");
+    else if (p === "/auditor-register") setPage("auditor-register");
   }, []);
 
   const handleLogin = (role: UserRole) => {
@@ -103,3 +103,9 @@ const App: React.FC = () => {
           setUserRole={setUserRole}
           go={go}
         />
+      )}
+    </div>
+  );
+};
+
+export default App;
