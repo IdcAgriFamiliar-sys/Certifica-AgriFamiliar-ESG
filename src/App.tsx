@@ -51,4 +51,45 @@ const App: React.FC = () => {
     // update browser URL for shareability (no router)
     const mapping: Record<Page, string> = {
       landing: "/",
-      login: "/lo
+      login: "/login",
+      dashboard: "/dashboard",
+      "farmer-register": "/farmer-register",
+      "auditor-register": "/auditor-register",
+    };
+    try {
+      window.history.replaceState({}, "", mapping[to]);
+    } catch {}
+  };
+
+  return (
+    <div className="App min-h-screen bg-gray-50">
+      {page === "landing" && (
+        <LandingPage
+          onOpenLogin={() => go("login")}
+          onOpenFarmerRegister={() => go("farmer-register")}
+          onOpenAuditorRegister={() => go("auditor-register")}
+        />
+      )}
+
+      {page === "login" && <Login onLogin={handleLogin} onBack={() => go("landing")} />}
+
+      {page === "farmer-register" && (
+        <div className="p-6">
+          <button onClick={() => go("landing")} className="mb-4 text-sm text-blue-600">
+            &larr; Voltar
+          </button>
+          <FarmerRegistrationForm />
+        </div>
+      )}
+
+      {page === "auditor-register" && (
+        <div className="p-6">
+          <button onClick={() => go("landing")} className="mb-4 text-sm text-blue-600">
+            &larr; Voltar
+          </button>
+          <AuditorRegistrationForm />
+        </div>
+      )}
+
+      {page === "dashboard" && isLoggedIn && userRole !== "guest" && (
+        <Dashboard userRole={userRole} onLogout={handleLogout} setUserRole={setUserRole} go={go
