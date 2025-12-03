@@ -3,6 +3,7 @@
 import React from 'react';
 import { Leaf, Award, FileText, ArrowRight } from 'lucide-react';
 
+// Correção de caminho (case-sensitive) para assets
 import logoDespertarCidadania from '../assets/LogoDespertarCidadania.png';
 import seloESGAgriFamiliar from '../assets/SeloESGAgriFamiliar.png';
 
