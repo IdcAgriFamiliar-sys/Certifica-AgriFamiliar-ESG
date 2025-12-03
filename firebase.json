@@ -1,17 +1,17 @@
-// Arquivo: firebase.json
 {
   "hosting": {
-    // 💡 Defina 'public' para o diretório de SAÍDA do seu build (dist, build, etc.)
+    // 💡 CONFIRMADO: A pasta 'public' para o Firebase DEVE ser 'dist'
     "public": "dist", 
     
-    // Lista de arquivos a ignorar no upload
+    // Arquivos que o Firebase deve ignorar ao fazer o upload
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     
-    // Essencial para permitir o roteamento de URL no lado do cliente (React Router)
+    // 💡 Essencial para o React Router DOM (Single Page Application - SPA)
+    // Isso garante que todas as rotas (ex: /dashboard) carreguem o index.html
     "rewrites": [
       {
         "source": "**",
