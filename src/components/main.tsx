@@ -1,11 +1,10 @@
-// src/main.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.tsx'; // Importa seu código principal
-import './index.css'; // Importa seu CSS (agora com o Tailwind)
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from '../App.tsx' // <--- CORREÇÃO AQUI: Subindo um nível (..) para encontrar App.tsx em src/
+import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-);
+)
