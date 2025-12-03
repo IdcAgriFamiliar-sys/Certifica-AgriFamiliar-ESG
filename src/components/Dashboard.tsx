@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-// CORREÇÃO TS2307: Adicionando a extensão .tsx
-import Header from "./Header.tsx"; 
+import Header from "./Header.tsx";
 
-// Importação direta dos painéis, substitua pelos seus componentes reais
-// CORREÇÃO TS2307: Adicionando a extensão .tsx para os imports de componentes locais.
 import CertificationsView from "./Dashboard/CertificationsView.tsx";
 import FarmersView from "./Dashboard/FarmersView.tsx";
 import AuditorsView from "./Dashboard/AuditorsView.tsx";
@@ -13,11 +10,19 @@ import BatchesView from "./Dashboard/BatchesView.tsx";
 import ReportsView from "./Dashboard/ReportsView.tsx";
 import SettingsView from "./Dashboard/SettingsView.tsx";
 
-type UserRole = "admin" | "gestor" | "coordenador";
+export type UserRole =
+  | "admin"
+  | "gestor"
+  | "coordenador"
+  | "auditor"
+  | "agricultor"
+  | "guest";
 
 interface Props {
   userRole: UserRole;
   onLogout: () => void;
+  setUserRole?: (role: UserRole) => void;
+  go?: (path: string) => void;
 }
 
 const navByRole: Record<UserRole, Array<{ id: string; label: string }>> = {
@@ -41,6 +46,9 @@ const navByRole: Record<UserRole, Array<{ id: string; label: string }>> = {
     { id: "audits", label: "Auditorias" },
     { id: "reports", label: "Relatórios" },
   ],
+  auditor: [],
+  agricultor: [],
+  guest: [],
 };
 
 const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
@@ -79,7 +87,9 @@ const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
               key={item.id}
               onClick={() => setSelected(item.id)}
               className={`w-full text-left px-4 py-2 rounded mb-2 ${
-                selected === item.id ? "bg-green-700 text-white" : "hover:bg-gray-200"
+                selected === item.id
+                  ? "bg-green-700 text-white"
+                  : "hover:bg-gray-200"
               }`}
             >
               {item.label}
@@ -92,5 +102,4 @@ const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
   );
 };
 
-// CORREÇÃO TS2304: Substituindo "expo" pelo export padrão
 export default Dashboard;
