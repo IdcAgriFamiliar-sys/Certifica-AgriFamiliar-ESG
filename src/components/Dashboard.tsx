@@ -1,12 +1,12 @@
-// src/components/Dashboard.tsx
+// src/componentes/Dashboard.tsx
 
 import React, { useState, Dispatch, SetStateAction } from 'react';
 import { Users, BarChart2, BookOpen, DollarSign, Package, Settings, ClipboardList } from 'lucide-react';
 import { UserRole } from '../App';
 
-// Correções de caminho (case-sensitive)
-import Header from './Header';
-import Sidebar from './Sidebar';
+// CORREÇÃO: Importando Cabeçalho.tsx
+import Cabeçalho from './Cabeçalho'; 
+import Sidebar from './Sidebar'; // Assumindo que o nome do arquivo seja Sidebar.tsx
 
 // Correções de caminho (case-sensitive) para Painel/
 import CertificationsView from './Painel/CertificationsView';
@@ -50,11 +50,11 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout }) => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Aqui assumimos que Sidebar.tsx tem a interface de props correta */}
+      {/* Assumindo que Sidebar.tsx tenha as props corretas */}
       <Sidebar navItems={navItems} activeView={activeView} setActiveView={setActiveView} userRole={userRole} onLogout={onLogout} />
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Aqui assumimos que Header.tsx tem a interface de props correta */}
-        <Header activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} userRole={userRole} onLogout={onLogout} />
+        {/* Usando Cabeçalho.tsx e assumindo que ele tem as props corretas */}
+        <Cabeçalho activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} userRole={userRole} onLogout={onLogout} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
           <ActiveComponent />
         </main>
