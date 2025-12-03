@@ -1,175 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { LogOut, Home, FileCheck, Users, Shield, Briefcase, DollarSign, Package, BarChart3, Settings, User, Zap, Leaf } from 'lucide-react';
-import CertificationsView from './Painel/CertificationsView';
-import FarmersView from './Painel/FarmersView';
-import AuditorsView from './Painel/AuditorsView';
-import AuditsView from './Painel/AuditsView';
-import FinancesView from './Painel/FinancesView';
-import BatchesView from './Painel/BatchesView';
-import ReportsView from './Painel/ReportsView';
-import SettingsView from './Painel/SettingsView';
-import { UserRole } from '../App'; 
+import React, { useState } from 'react';
+import { UserRole } from '../App';
+import { ChevronDown, ChevronUp, Users, ClipboardCheck, DollarSign, Package, BarChart2, Settings, FileText } from 'lucide-react';
 
-// Mapeamento de rotas e ícones
-interface MenuItem {
-  name: string;
-  icon: React.ReactNode;
-  component: React.FC;
-  visibleFor: UserRole[]; 
-}
+// =========================================================================
+// CORREÇÃO: Todos os caminhos de importação estão agora em minúsculo: './painel/'
+// =========================================================================
+import CertificationsView from './painel/CertificationsView'; 
+import FarmersView from './painel/FarmersView';
+import AuditorsView from './painel/AuditorsView';
+import AuditsView from './painel/AuditsView';
+import FinancesView from './painel/FinancesView';
+import BatchesView from './painel/BatchesView';
+import ReportsView from './painel/ReportsView';
+import SettingsView from './painel/SettingsView';
+// =========================================================================
 
 interface DashboardProps {
-  onLogout: () => void;
   userRole: UserRole;
-  setUserRole: (role: UserRole) => void;
+  onLogout: () => void;
+  setUserRole: React.Dispatch<React.SetStateAction<UserRole>>;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout, userRole, setUserRole }) => {
-  const [activeRoute, setActiveRoute] = useState<string>('home');
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  roles: UserRole[];
+  component: React.FC;
+}
 
-  // Garante que a rota ativa é válida para o novo perfil ao mudar o role
-  useEffect(() => {
-    // Tenta manter a rota, mas volta para a Home se não for visível para o novo perfil
-    const currentItem = menuItems.find(item => item.name === activeRoute);
-    if (!currentItem || !currentItem.visibleFor.includes(userRole)) {
-      setActiveRoute('home'); 
-    }
-  }, [userRole]);
+const navItems: NavItem[] = [
+  { id: 'certifications', label: 'Certificações', icon: <ClipboardCheck size={20} />, roles: ['admin', 'coordinator'], component: CertificationsView },
+  { id: 'farmers', label: 'Agricultores', icon: <Users size={20} />, roles: ['admin', 'coordinator'], component: FarmersView },
+  { id: 'auditors', label: 'Auditores', icon: <FileText size={20} />, roles: ['admin', 'coordinator'], component: AuditorsView },
+  { id: 'audits', label: 'Auditorias', icon: <ClipboardCheck size={20} />, roles: ['auditor', 'admin', 'coordinator'], component: AuditsView },
+  { id: 'batches', label: 'Lotes', icon: <Package size={20} />, roles: ['farmer', 'admin', 'coordinator'], component: BatchesView },
+  { id: 'finances', label: 'Finanças', icon: <DollarSign size={20} />, roles: ['admin', 'coordinator'], component: FinancesView },
+  { id: 'reports', label: 'Relatórios', icon: <BarChart2 size={20} />, roles: ['admin', 'coordinator'], component: ReportsView },
+  { id: 'settings', label: 'Configurações', icon: <Settings size={20} />, roles: ['admin', 'coordinator', 'auditor', 'farmer'], component: SettingsView },
+];
 
+const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, setUserRole }) => {
+  const [activeTab, setActiveTab] = useState<string>(navItems.find(item => item.roles.includes(userRole))?.id || 'certifications');
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
 
-  // Mapeamento de rotas com base na visibilidade dos perfis (Suas regras de negócio)
-  const menuItems: MenuItem[] = [
-    // Dashboard Geral: Visão de alto nível
-    { name: 'Dashboard Geral', icon: <Home size={20} />, component: ReportsView, visibleFor: ['admin', 'coordinator'] },
-    
-    // Gestão de Usuários e Cadastros
-    { name: 'Agricultores (Gestão)', icon: <Users size={20} />, component: FarmersView, visibleFor: ['admin', 'coordinator'] },
-    { name: 'Auditores (Credenc.)', icon: <Shield size={20} />, component: AuditorsView, visibleFor: ['admin', 'coordinator'] },
-
-    // Módulos de Certificação e Auditoria
-    { name: 'Certificações', icon: <FileCheck size={20} />, component: CertificationsView, visibleFor: ['admin', 'coordinator', 'auditor'] },
-    { name: 'Agenda de Auditorias', icon: <Briefcase size={20} />, component: AuditsView, visibleFor: ['admin', 'coordinator', 'auditor'] },
-
-    // Módulos do Agricultor (Visão de gestão da propriedade)
-    { name: 'Minha Propriedade/Dados', icon: <User size={20} />, component: FarmersView, visibleFor: ['farmer'] }, 
-    { name: 'Lotes e Rastreabilidade', icon: <Package size={20} />, component: BatchesView, visibleFor: ['farmer', 'admin', 'coordinator'] },
-    { name: 'Finanças e Receitas', icon: <DollarSign size={20} />, component: FinancesView, visibleFor: ['farmer', 'admin', 'coordinator'] },
-    
-    // Relatórios e Ferramentas de Gestão
-    { name: 'Relatórios/Analytics', icon: <BarChart3 size={20} />, component: ReportsView, visibleFor: ['admin', 'coordinator'] },
-    { name: 'Documentos (Upload/Download)', icon: <Zap size={20} />, component: SettingsView, visibleFor: ['admin', 'coordinator', 'auditor', 'farmer'] }, // Item para simular upload/download
-    
-    // Configurações
-    { name: 'Configurações (Admin)', icon: <Settings size={20} />, component: SettingsView, visibleFor: ['admin'] }, // Exclusivo do Admin
-  ];
-
-  // Filtra os itens do menu com base no perfil logado
-  const visibleMenuItems = menuItems.filter(item => item.visibleFor.includes(userRole));
-
-  // Tenta encontrar o componente ativo. Se for 'home', usa ReportsView como padrão.
-  const ActiveComponent = visibleMenuItems.find(item => item.name === activeRoute)?.component || ReportsView;
-
-  // Renderiza o seletor de perfil (View As)
-  const renderRoleSelector = () => {
-    // Apenas Admin e Coordenador podem alternar visões
-    if (userRole === 'admin' || userRole === 'coordinator') {
-      const roles: UserRole[] = ['admin', 'coordinator', 'auditor', 'farmer'];
-      const roleNames = {
-        'admin': 'Admin/Gestor',
-        'coordinator': 'Coordenador',
-        'auditor': 'Auditor',
-        'farmer': 'Agricultor(a)',
-      };
-      
-      // Coordenador não pode ver como Admin/Gestor
-      const allowedRoles = userRole === 'admin' ? roles : roles.filter(r => r !== 'admin');
-      
-      return (
-        <div className="p-4 border-t border-gray-700">
-          <label className="block text-xs font-medium text-gray-400 mb-1">VISUALIZAR COMO:</label>
-          <select
-            value={userRole}
-            onChange={(e) => {
-              setUserRole(e.target.value as UserRole);
-            }}
-            className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white text-sm focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {allowedRoles.map(role => (
-              <option key={role} value={role}>{roleNames[role]}</option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const getProfileName = (role: UserRole) => {
-    switch(role) {
-      case 'admin': return 'Admin/Gestor';
-      case 'coordinator': return 'Coordenador';
-      case 'auditor': return 'Auditor';
-      case 'farmer': return 'Agricultor(a)';
-      default: return 'Usuário';
-    }
-  }
+  // Filtra os itens de navegação baseados no perfil do usuário
+  const filteredNavItems = navItems.filter(item => item.roles.includes(userRole));
+  
+  // Encontra o componente ativo para renderização
+  const ActiveComponent = filteredNavItems.find(item => item.id === activeTab)?.component || CertificationsView;
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
+      
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 text-white flex flex-col justify-between">
-        <div>
-          <div className="p-4 text-2xl font-bold text-green-400 border-b border-gray-700 flex items-center gap-2">
-            <Leaf size={28} />
-            AgriESG
+      <aside className="w-64 bg-gray-900 flex flex-col justify-between">
+        <div className="p-4">
+          <h1 className="text-2xl font-bold text-green-400 mb-6">AgriFamiliar ESG</h1>
+          
+          {/* Seletor de Perfil (Simulação) */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowRoleSelector(!showRoleSelector)}
+              className="w-full bg-gray-800 text-white p-3 rounded-lg flex justify-between items-center hover:bg-gray-700 transition"
+            >
+              Perfil: <span className="capitalize font-semibold text-indigo-300">{userRole}</span>
+              {showRoleSelector ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {showRoleSelector && (
+              <div className="mt-2 bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+                {(['admin', 'coordinator', 'auditor', 'farmer'] as UserRole[]).map(role => (
+                  <button
+                    key={role}
+                    onClick={() => {
+                      setUserRole(role);
+                      setShowRoleSelector(false);
+                      // Resetar a aba ativa para o primeiro item disponível no novo perfil
+                      setActiveTab(navItems.find(item => item.roles.includes(role))?.id || 'certifications');
+                    }}
+                    className={`w-full text-left p-3 hover:bg-green-700 transition capitalize ${userRole === role ? 'bg-green-600 font-bold' : 'text-gray-300'}`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Seletor de Perfil (View As) */}
-          {renderRoleSelector()}
-
-          {/* Menu de Navegação */}
-          <nav className="flex-1 p-4 space-y-2">
-            {visibleMenuItems.map((item) => (
+          {/* Navegação */}
+          <nav>
+            {filteredNavItems.map((item) => (
               <button
-                key={item.name}
-                onClick={() => setActiveRoute(item.name)}
-                className={`flex items-center w-full p-3 rounded-lg transition duration-150 ${
-                  activeRoute === item.name
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                }`}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full text-left flex items-center p-3 my-1 rounded-lg transition duration-200 
+                  ${activeTab === item.id 
+                    ? 'bg-green-600 text-white font-semibold shadow-md' 
+                    : 'text-gray-300 hover:bg-gray-700'
+                  }`}
               >
                 {item.icon}
-                <span className="ml-3 text-sm font-medium">{item.name}</span>
+                <span className="ml-3">{item.label}</span>
               </button>
             ))}
           </nav>
         </div>
-
-        {/* Footer Sidebar */}
-        <div className="p-4 border-t border-gray-700">
-          <div className="text-sm font-semibold mb-2 text-gray-300">
-            Perfil: {getProfileName(userRole)}
-          </div>
+        
+        {/* Rodapé da Sidebar / Logout */}
+        <div className="p-4 border-t border-gray-800">
           <button
             onClick={onLogout}
-            className="flex items-center w-full p-3 text-sm text-red-400 bg-gray-700 rounded-lg hover:bg-red-500 hover:text-white transition duration-150"
+            className="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition shadow-lg"
           >
-            <LogOut size={20} />
-            <span className="ml-3">Sair do Sistema</span>
+            Sair
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-8">
-        <header className="mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-900">
-            {activeRoute === 'home' ? `Dashboard Geral (${getProfileName(userRole)})` : activeRoute}
-          </h1>
-        </header>
-        <div className="bg-white p-6 rounded-xl shadow-xl min-h-[85vh]">
-          <ActiveComponent />
+        <div className="max-w-7xl mx-auto">
+          {/* Título da View Atual */}
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-6">
+            {navItems.find(item => item.id === activeTab)?.label}
+          </h2>
+
+          {/* Renderiza o Componente Ativo */}
+          <div className="bg-white p-6 rounded-xl shadow-lg min-h-[70vh]">
+            <ActiveComponent />
+          </div>
         </div>
       </main>
     </div>
