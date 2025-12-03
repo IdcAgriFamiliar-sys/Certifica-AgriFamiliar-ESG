@@ -1,11 +1,14 @@
 // src/components/Dashboard.tsx
 
-import React, { useState } from 'react';
-import { Home, Users, BarChart2, BookOpen, DollarSign, Package, Settings, ClipboardList } from 'lucide-react';
-import Header from './Header'; // Assumindo que Header está no mesmo nível
-import Sidebar from './Sidebar'; // Assumindo que Sidebar está no mesmo nível
+import React, { useState, Dispatch, SetStateAction } from 'react';
+import { Users, BarChart2, BookOpen, DollarSign, Package, Settings, ClipboardList } from 'lucide-react';
+import { UserRole } from '../App'; // Importa UserRole do App
 
-// CORREÇÃO: Usando './Painel/' (com 'P' maiúsculo) para resolver o case sensitivity
+// CORREÇÃO: Assumindo que Header e Sidebar estão no mesmo nível da Dashboard, no diretório components
+import Header from './Header'; 
+import Sidebar from './Sidebar';
+
+// CORREÇÃO: Usando './Painel/' (com 'P' maiúsculo) e garantindo que os nomes de arquivos no Painel/ estejam corretos
 import CertificationsView from './Painel/CertificationsView';
 import FarmersView from './Painel/FarmersView';
 import AuditorsView from './Painel/AuditorsView';
@@ -14,6 +17,13 @@ import FinancesView from './Painel/FinancesView';
 import BatchesView from './Painel/BatchesView';
 import ReportsView from './Painel/ReportsView';
 import SettingsView from './Painel/SettingsView';
+
+// CORREÇÃO: Interface DashboardProps para corrigir TS2322
+interface DashboardProps {
+  userRole: UserRole;
+  onLogout: () => void;
+  setUserRole: Dispatch<SetStateAction<UserRole>>;
+}
 
 interface NavItem {
   id: string;
@@ -33,16 +43,17 @@ const navItems: NavItem[] = [
   { id: 'settings', name: 'Configurações', icon: Settings, component: SettingsView },
 ];
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, setUserRole }) => {
   const [activeView, setActiveView] = useState<string>(navItems[0].id);
 
   const ActiveComponent = navItems.find(item => item.id === activeView)?.component || CertificationsView;
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar navItems={navItems} activeView={activeView} setActiveView={setActiveView} />
+      <Sidebar navItems={navItems} activeView={activeView} setActiveView={setActiveView} userRole={userRole} onLogout={onLogout} />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <Header activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} />
+        {/* CORREÇÃO: Header agora aceita activeViewName, userRole e onLogout */}
+        <Header activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} userRole={userRole} onLogout={onLogout} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
           <ActiveComponent />
         </main>
