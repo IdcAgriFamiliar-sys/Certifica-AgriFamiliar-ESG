@@ -1,33 +1,57 @@
 // src/services/api.ts
-export const API_BASE = import.meta.env.VITE_API_BASE || '';
+// Serviço de comunicação com a API do Certifica AgriFamiliar ESG
+// Corrigido para funcionar no Vite + TypeScript
 
-export async function apiFetch(path: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('token');
-  const headers: Record<string,string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string,string> || {})
-  };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+// Variável de ambiente no Vite deve começar com VITE_
+// Exemplo no .env: VITE_API_BASE_URL=https://meuapi.com
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: 'same-origin',
-    ...options,
-    headers
-  });
+/**
+ * Função para realizar requisições GET
+ * @param endpoint - caminho da API, ex: "farmers"
+ */
+export async function getData(endpoint: string): Promise<any> {
+  const url = `${API_BASE_URL}/${endpoint}`;
+  const response = await fetch(url);
 
-  if (!res.ok) {
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = { message: text }; }
-    const err: any = new Error(data?.message || 'Erro na requisição');
-    err.status = res.status;
-    err.body = data;
-    throw err;
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar dados: ${response.statusText}`);
   }
 
-  // se não houver corpo
-  if (res.status === 204) return null;
-  const contentType = res.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) return res.json();
-  return res.text();
+  return response.json();
+}
+
+/**
+ * Função para realizar requisições POST
+ * @param endpoint - caminho da API, ex: "farmers"
+ * @param data - objeto a ser enviado no corpo da requisição
+ */
+export async function postData(endpoint: string, data: any): Promise<any> {
+  const url = `${API_BASE_URL}/${endpoint}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erro ao enviar dados: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Função para realizar requisições DELETE
+ * @param endpoint - caminho da API, ex: "farmers/1"
+ */
+export async function deleteData(endpoint: string): Promise<void> {
+  const url = `${API_BASE_URL}/${endpoint}`;
+  const response = await fetch(url, { method: "DELETE" });
+
+  if (!response.ok) {
+    throw new Error(`Erro ao deletar dados: ${response.statusText}`);
+  }
 }
