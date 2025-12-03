@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import Header from "./Header";
+// CORREÇÃO TS2307: Adicionando a extensão .tsx
+import Header from "./Header.tsx"; 
 
 // Importação direta dos painéis, substitua pelos seus componentes reais
-import CertificationsView from "./Dashboard/CertificationsView";
-import FarmersView from "./Dashboard/FarmersView";
-import AuditorsView from "./Dashboard/AuditorsView";
-import AuditsView from "./Dashboard/AuditsView";
-import FinancesView from "./Dashboard/FinancesView";
-import BatchesView from "./Dashboard/BatchesView";
-import ReportsView from "./Dashboard/ReportsView";
-import SettingsView from "./Dashboard/SettingsView";
+// CORREÇÃO TS2307: Adicionando a extensão .tsx para os imports de componentes locais.
+import CertificationsView from "./Dashboard/CertificationsView.tsx";
+import FarmersView from "./Dashboard/FarmersView.tsx";
+import AuditorsView from "./Dashboard/AuditorsView.tsx";
+import AuditsView from "./Dashboard/AuditsView.tsx";
+import FinancesView from "./Dashboard/FinancesView.tsx";
+import BatchesView from "./Dashboard/BatchesView.tsx";
+import ReportsView from "./Dashboard/ReportsView.tsx";
+import SettingsView from "./Dashboard/SettingsView.tsx";
 
 type UserRole = "admin" | "gestor" | "coordenador";
 
@@ -90,4 +92,5 @@ const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
   );
 };
 
-expo
+// CORREÇÃO TS2304: Substituindo "expo" pelo export padrão
+export default Dashboard;
