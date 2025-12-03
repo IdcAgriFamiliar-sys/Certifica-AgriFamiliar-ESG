@@ -1,43 +1,42 @@
+// src/App.tsx
+
 import React, { useState } from 'react';
-import LandingPage from './components/LandingPage'; 
+import LandingPage from './components/LandingPage';
+import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
-// Tipos de perfil que o sistema pode assumir
-// Adicionamos 'coordinator' para segregar permissões
-export type UserRole = 'admin' | 'coordinator' | 'auditor' | 'farmer';
-type AppView = 'landing' | 'dashboard';
+// Definição do tipo para Papel do Usuário
+export type UserRole = 'agricultor' | 'auditor' | 'admin' | 'guest';
 
 const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<AppView>('landing');
-  // O perfil padrão é 'admin' para simular o acesso inicial ao painel de gestão.
-  const [userRole, setUserRole] = useState<UserRole>('admin'); 
+  const [userRole, setUserRole] = useState<UserRole>('guest');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // A função de login simula a entrada de um perfil
   const handleLogin = (role: UserRole) => {
     setUserRole(role);
-    setActiveView('dashboard');
+    setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
-    if (window.confirm('Tem certeza que deseja sair do Painel de Gestão?')) {
-      setActiveView('landing');
-      setUserRole('admin'); // Resetar a simulação para o padrão
-    }
+    setUserRole('guest');
+    setIsLoggedIn(false);
   };
+
+  let content;
+
+  if (isLoggedIn && userRole !== 'guest') {
+    // CORREÇÃO: Passando as props userRole, onLogout, e setUserRole para Dashboard
+    content = <Dashboard userRole={userRole} onLogout={handleLogout} setUserRole={setUserRole} />;
+  } else if (userRole === 'guest' && window.location.pathname === '/login') {
+    // CORREÇÃO: Passando a prop onLogin para Login
+    content = <Login onLogin={handleLogin} />;
+  } else {
+    content = <LandingPage />;
+  }
 
   return (
     <div className="App">
-      {activeView === 'landing' ? (
-        // Passa a função de login que aceita o perfil (role)
-        <LandingPage onLogin={handleLogin} />
-      ) : (
-        // Passa o perfil, a função de logout e a função de mudar perfil
-        <Dashboard 
-          userRole={userRole} 
-          onLogout={handleLogout} 
-          setUserRole={setUserRole} 
-        />
-      )}
+      {content}
     </div>
   );
 };
