@@ -1,9 +1,11 @@
 // src/App.tsx
 
 import React, { useState } from 'react';
-import LandingPage from './componentes/LandingPage';
-import Login from './componentes/Login'; // CORREÇÃO: Usando componentes/
-import Dashboard from './componentes/Dashboard'; // CORREÇÃO: Usando componentes/
+
+// CAMINHOS CORRIGIDOS
+import LandingPage from './components/LandingPage';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
 export type UserRole = 'agricultor' | 'auditor' | 'admin' | 'guest';
 
@@ -24,18 +26,20 @@ const App: React.FC = () => {
   let content;
 
   if (isLoggedIn && userRole !== 'guest') {
-    content = <Dashboard userRole={userRole} onLogout={handleLogout} setUserRole={setUserRole} />;
-  } else if (userRole === 'guest' && window.location.pathname === '/login') {
+    content = (
+      <Dashboard
+        userRole={userRole}
+        onLogout={handleLogout}
+        setUserRole={setUserRole}
+      />
+    );
+  } else if (window.location.pathname === '/login') {
     content = <Login onLogin={handleLogin} />;
   } else {
     content = <LandingPage />;
   }
 
-  return (
-    <div className="App">
-      {content}
-    </div>
-  );
+  return <div className="App">{content}</div>;
 };
 
 export default App;
