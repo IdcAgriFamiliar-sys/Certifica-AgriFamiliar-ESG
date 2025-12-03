@@ -18,23 +18,6 @@ import BatchesView from './Painel/BatchesView';
 import ReportsView from './Painel/ReportsView';
 import SettingsView from './Painel/SettingsView';
 
-// Adicionado interfaces placeholder para evitar erro TS2322 (Property 'activeViewName' does not exist on type 'IntrinsicAttributes & HeaderProps')
-// Você deve garantir que Header.tsx e Sidebar.tsx implementem as props corretas.
-
-interface HeaderProps {
-  activeViewName: string;
-  userRole: UserRole;
-  onLogout: () => void;
-}
-
-interface SidebarProps {
-    navItems: NavItem[];
-    activeView: string;
-    setActiveView: (view: string) => void;
-    userRole: UserRole;
-    onLogout: () => void;
-}
-
 interface DashboardProps {
   userRole: UserRole;
   onLogout: () => void;
@@ -59,10 +42,6 @@ const navItems: NavItem[] = [
   { id: 'settings', name: 'Configurações', icon: Settings, component: SettingsView },
 ];
 
-// O componente Header e Sidebar são tratados como genéricos aqui, mas precisam existir e ter as props corretas.
-const TypedHeader = Header as React.FC<HeaderProps>;
-const TypedSidebar = Sidebar as React.FC<SidebarProps>;
-
 
 const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout }) => {
   const [activeView, setActiveView] = useState<string>(navItems[0].id);
@@ -71,9 +50,11 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout }) => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <TypedSidebar navItems={navItems} activeView={activeView} setActiveView={setActiveView} userRole={userRole} onLogout={onLogout} />
+      {/* Aqui assumimos que Sidebar.tsx tem a interface de props correta */}
+      <Sidebar navItems={navItems} activeView={activeView} setActiveView={setActiveView} userRole={userRole} onLogout={onLogout} />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <TypedHeader activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} userRole={userRole} onLogout={onLogout} />
+        {/* Aqui assumimos que Header.tsx tem a interface de props correta */}
+        <Header activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} userRole={userRole} onLogout={onLogout} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
           <ActiveComponent />
         </main>
