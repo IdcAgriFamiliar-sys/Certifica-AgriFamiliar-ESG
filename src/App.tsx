@@ -1,9 +1,9 @@
 // src/App.tsx
 
 import React, { useState } from 'react';
-import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
+import LandingPage from './componentes/LandingPage';
+import Login from './componentes/Login'; // CORREÇÃO: Usando componentes/
+import Dashboard from './componentes/Dashboard'; // CORREÇÃO: Usando componentes/
 
 export type UserRole = 'agricultor' | 'auditor' | 'admin' | 'guest';
 
