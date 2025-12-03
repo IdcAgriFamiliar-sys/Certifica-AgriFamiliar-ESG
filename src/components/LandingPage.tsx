@@ -1,158 +1,82 @@
+// src/components/LandingPage.tsx
+
 import React from 'react';
-import { Leaf, ShieldCheck, TrendingUp, BarChart2, UserPlus, FileText, LogIn } from 'lucide-react';
-import { UserRole } from '../App'; 
+import { Leaf, Award, FileText, ArrowRight } from 'lucide-react';
 
-// ============================================================================
-// IMPORTAÇÃO DAS LOGOS - CONFIRMADO: Caminho '..assets/' e Nomes sem espaços
-// ============================================================================
-import idcLogo from '../assets/LogoDespertarCidadania.png'; 
-import seloEsg from '../assets/SeloESGAgriFamiliar.png';   
-// ============================================================================
+// CORREÇÃO: Usando '../assets/' para resolver o erro de caminho de assets
+import logoDespertarCidadania from '../assets/LogoDespertarCidadania.png';
+import seloESGAgriFamiliar from '../assets/SeloESGAgriFamiliar.png';
 
-interface LandingPageProps {
-  onLogin: (role: UserRole) => void;
-}
-
-const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, description: string }> = ({ icon, title, description }) => (
-  <div className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500 transition-transform duration-300 hover:scale-[1.02]">
-    <div className="text-green-600 mb-3">{icon}</div>
-    <h3 className="text-xl font-semibold mb-2 text-gray-800">{title}</h3>
+const FeatureCard: React.FC<{ icon: React.ElementType, title: string, description: string }> = ({ icon: Icon, title, description }) => (
+  <div className="bg-white p-6 rounded-lg shadow-lg text-center transition-transform transform hover:scale-105">
+    <Icon className="w-10 h-10 text-green-600 mx-auto mb-4" />
+    <h3 className="text-xl font-semibold text-gray-800 mb-2">{title}</h3>
     <p className="text-gray-600">{description}</p>
   </div>
 );
 
-const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
+const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white shadow-md p-4 sticky top-0 z-10">
-        <div className="container mx-auto flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header/Hero Section */}
+      <header className="bg-green-700 text-white shadow-md">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            {/* Nome do Projeto */}
-            <div className="flex items-center text-2xl font-bold text-green-700 mr-4">
-              <Leaf size={30} className="mr-2" />
-              Certifica AgriFamiliar ESG
-            </div>
-            {/* Logo da Instituição Criadora (IDC) */}
-            <img src={idcLogo} alt="Logo IDC - Instituto Despertar da Cidadania" className="h-8" />
+            <img src={seloESGAgriFamiliar} alt="Selo ESG" className="h-10 mr-3" />
+            <span className="text-2xl font-bold">Certificação ESG Agrifamiliar</span>
           </div>
-          
-          {/* Botão Único de Login para Usuários Ativos (Gestores, Coordenadores, etc.) */}
-          <button
-            onClick={() => onLogin('admin')} // Simula a entrada na tela de LOGIN (Gestor, Coordenador, etc.)
-            className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md flex items-center gap-2"
-          >
-            <LogIn size={20} />
-            Entrar no Sistema
-          </button>
+          <a href="/login" className="bg-white text-green-700 py-2 px-4 rounded-full font-semibold hover:bg-gray-100 transition duration-300">
+            Acessar Plataforma
+          </a>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-grow">
-        <section className="py-24 bg-gray-100 text-center">
-          <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
-            A Certificação ESG que Transforma a Agricultura Familiar.
+      <section className="py-20 bg-green-50">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-5xl font-extrabold text-gray-800 mb-4">
+            Sustentabilidade, Responsabilidade e Governança na Agricultura Familiar
           </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-4xl mx-auto">
-            Impulsione sua produção com padrões de Sustentabilidade, Governança e Impacto Social, abrindo portas para mercados de valor.
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Impulsione sua produção com o selo ESG que valoriza o meio ambiente, o social e a transparência.
           </p>
-          
-          {/* TRÊS CAMINHOS CLAROS: Login, Cadastro e Credenciamento */}
-          <div className="flex justify-center gap-6 mt-10">
-            {/* 1. Cadastro de Agricultor */}
-            <div className="flex flex-col items-center justify-center p-8 w-64 bg-white rounded-xl shadow-2xl border-t-4 border-green-500">
-                <UserPlus size={36} className="text-green-600 mb-3" />
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Sou Agricultor(a)</h3>
-                <p className="text-sm text-gray-500 mb-4">Inicie seu processo de certificação e gestão de dados ESG.</p>
-                <button
-                    onClick={() => alert("Simulando formulário de Cadastro de Agricultor(a)!")}
-                    className="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
-                >
-                    Quero me Cadastrar
-                </button>
-            </div>
+          <a href="/register" className="inline-flex items-center bg-green-600 text-white py-3 px-8 rounded-full text-lg font-bold hover:bg-green-700 transition duration-300 shadow-xl">
+            Comece Sua Certificação Agora <ArrowRight className="ml-2 w-5 h-5" />
+          </a>
+        </div>
+      </section>
 
-            {/* 2. Credenciamento de Auditor */}
-            <div className="flex flex-col items-center justify-center p-8 w-64 bg-white rounded-xl shadow-2xl border-t-4 border-purple-500">
-                <FileText size={36} className="text-purple-600 mb-3" />
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Sou Auditor(a)</h3>
-                <p className="text-sm text-gray-500 mb-4">Envie sua documentação para ser credenciado na rede do IDC.</p>
-                <button
-                    onClick={() => alert("Simulando formulário de Credenciamento de Auditor(a)!")}
-                    className="w-full px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
-                >
-                    Quero me Credenciar
-                </button>
-            </div>
-            
-            {/* 3. Acesso Rápido para Logado (Link que simula login na Home) */}
-            <div className="flex flex-col items-center justify-center p-8 w-64 bg-white rounded-xl shadow-2xl border-t-4 border-indigo-500">
-                <LogIn size={36} className="text-indigo-600 mb-3" />
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Já Tenho Acesso</h3>
-                <p className="text-sm text-gray-500 mb-4">Acesse o painel de gestão da sua propriedade ou de auditoria.</p>
-                <button
-                    onClick={() => onLogin('farmer')} // Simula um login ativo (pode ser qualquer um, usamos farmer)
-                    className="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition"
-                >
-                    Acessar
-                </button>
-            </div>
-          </div>
-        </section>
-        
-        {/* NOVA SEÇÃO: Apresentação do IDC e Selo */}
-        <section className="py-16 bg-white border-b border-gray-200">
-            <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-10">
-                <div className="lg:w-2/3">
-                    <h2 className="text-3xl font-bold text-green-700 mb-4">Sobre o Instituto Despertar da Cidadania (IDC)</h2>
-                    <p className="text-gray-600 text-lg mb-4">
-                        O **IDC** é a instituição idealizadora e promotora do projeto Certifica AgriFamiliar ESG. Nossa missão é fomentar o desenvolvimento sustentável e a inclusão social no campo, garantindo que a agricultura familiar atenda aos mais altos padrões ambientais, sociais e de governança.
-                    </p>
-                    <p className="text-gray-600">
-                        Através da certificação, o IDC busca valorizar o trabalho do agricultor, conectando-o a um mercado que reconhece e recompensa práticas responsáveis.
-                    </p>
-                </div>
-                {/* O Selo ESG como distintivo */}
-                <div className="lg:w-1/3 flex flex-col items-center p-6 bg-gray-50 rounded-xl shadow-inner">
-                    <img src={seloEsg} alt="Selo AgriFamiliar ESG" className="w-40 h-auto mb-3" />
-                    <p className="text-sm font-semibold text-gray-700 text-center">Distintivo de Conformidade ESG</p>
-                </div>
-            </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-20 container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">O que o sistema oferece?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* Features Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">O que o Selo ESG Garante?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard
-              icon={<ShieldCheck size={40} />}
-              title="Rastreabilidade Completa"
-              description="Do plantio à venda, cada lote é rastreado para garantir transparência e autenticidade ESG."
+              icon={Leaf}
+              title="Ambiental (E)"
+              description="Compromisso com o uso sustentável dos recursos naturais, redução de resíduos e proteção da biodiversidade."
             />
             <FeatureCard
-              icon={<TrendingUp size={40} />}
-              title="Acesso a Mercados"
-              description="Use o selo para abrir portas para compradores e investidores focados em sustentabilidade."
+              icon={Award}
+              title="Social (S)"
+              description="Foco em relações de trabalho justas, bem-estar da comunidade, diversidade e inclusão no campo."
             />
             <FeatureCard
-              icon={<BarChart2 size={40} />}
-              title="Avaliação Detalhada"
-              description="Tenha uma visão clara do seu desempenho nas áreas Ambiental, Social e de Governança."
-            />
-            <FeatureCard
-              icon={<Leaf size={40} />}
-              title="Gestão Simplificada"
-              description="Ferramentas fáceis para registrar dados de plantio, finanças e documentos fiscais."
+              icon={FileText}
+              title="Governança (G)"
+              description="Transparência, prestação de contas e ética na gestão, fortalecendo a confiança dos parceiros e consumidores."
             />
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white p-6">
-        <div className="container mx-auto text-center text-sm">
-          &copy; {new Date().getFullYear()} Certifica AgriFamiliar ESG. Todos os direitos reservados.
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="container mx-auto px-6 text-center">
+          <p className="mb-4">Uma iniciativa:</p>
+          <img src={logoDespertarCidadania} alt="Logo Despertar Cidadania" className="h-12 mx-auto mb-4" />
+          <p className="text-sm">
+            &copy; {new Date().getFullYear()} Sistema de Certificação ESG da Agricultura Familiar. Todos os direitos reservados.
+          </p>
         </div>
       </footer>
     </div>
