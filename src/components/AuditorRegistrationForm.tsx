@@ -63,9 +63,3 @@ const AuditorRegistrationForm: React.FC = () => {
       federal: federalFiles ? Array.from(federalFiles).map((f) => f.name) : [],
       cndt: cndtFiles ? Array.from(cndtFiles).map((f) => f.name) : [],
       fgts: fgtsFiles ? Array.from(fgtsFiles).map((f) => f.name) : [],
-      diploma: diplomaFiles ? Array.from(diplomaFiles).map((f) => f.name) : [],
-      registro: registroFiles ? Array.from(registroFiles).map((f) => f.name) : [],
-      curriculo: curriculoFiles ? Array.from(curriculoFiles).map((f) => f.name) : [],
-    };
-
-    console.log("Credenciamento auditor (preview):", preview)
