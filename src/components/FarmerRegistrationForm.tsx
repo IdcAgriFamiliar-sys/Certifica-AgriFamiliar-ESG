@@ -1,166 +1,79 @@
+// src/components/FarmerRegistrationForm.tsx
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
 
-interface FarmerFormData {
-  nome: string;
-  email: string;
-  telefone: string;
-  cpf: string;
-  rg: string;
-  endereco: string;
-  caf: string;
-}
-
-interface FarmerDocuments {
-  rgCpf?: FileList;
-  comprovanteEndereco?: FileList;
-  cafDocumento?: FileList;
-}
-
 const FarmerRegistrationForm: React.FC = () => {
-  const [formData, setFormData] = useState<FarmerFormData>({
+  const [formData, setFormData] = useState({
     nome: "",
     email: "",
     telefone: "",
     cpf: "",
-    rg: "",
-    endereco: "",
     caf: "",
+    endereco: "",
   });
 
-  const [documents, setDocuments] = useState<FarmerDocuments>({});
+  const [rgCpfFiles, setRgCpfFiles] = useState<FileList | null>(null);
+  const [cafFiles, setCafFiles] = useState<FileList | null>(null);
+  const [enderecoFiles, setEnderecoFiles] = useState<FileList | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validate = () => {
+    if (!formData.nome.trim()) return "Nome é obrigatório.";
+    if (!formData.email.trim()) return "E-mail é obrigatório.";
+    if (!formData.cpf.trim()) return "CPF é obrigatório.";
+    if (!formData.caf.trim()) return "Número do CAF é obrigatório.";
+    if (!rgCpfFiles || rgCpfFiles.length === 0) return "Anexe RG/CPF (arquivo).";
+    if (!cafFiles || cafFiles.length === 0) return "Anexe o CAF (arquivo).";
+    return null;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const err = validate();
+    if (err) return alert(err);
 
-    console.log("Dados agricultor:", formData);
-    console.log("Documentos:", documents);
-
+    // Em produção: montar FormData e enviar ao backend
+    const preview = {
+      ...formData,
+      rgCpfFiles: rgCpfFiles ? Array.from(rgCpfFiles).map((f) => f.name) : [],
+      cafFiles: cafFiles ? Array.from(cafFiles).map((f) => f.name) : [],
+      enderecoFiles: enderecoFiles ? Array.from(enderecoFiles).map((f) => f.name) : [],
+    };
+    console.log("Cadastro agricultor (preview):", preview);
     setSubmitted(true);
   };
 
   if (submitted) {
     return (
       <div className="p-6 text-center">
-        <h2 className="text-xl font-bold text-green-700">
-          Cadastro enviado com sucesso!
-        </h2>
-        <p className="text-gray-600 mt-2">
-          Nossa equipe analisará seu cadastro e você receberá informações em breve.
-        </p>
+        <h2 className="text-xl font-bold text-green-700">Cadastro enviado!</h2>
+        <p className="text-gray-600 mt-2">A equipe analisará e entrará em contato.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-        Cadastro de Agricultor(a)
-      </h2>
-
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4">Cadastro de Agricultor(a)</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        
-        <input
-          type="text"
-          name="nome"
-          placeholder="Nome completo"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
+        <input name="nome" placeholder="Nome completo" value={formData.nome} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="email" type="email" placeholder="E-mail" value={formData.email} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="telefone" placeholder="Telefone" value={formData.telefone} onChange={handleChange} className="w-full p-3 border rounded" />
+        <input name="cpf" placeholder="CPF" value={formData.cpf} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="caf" placeholder="Número do CAF" value={formData.caf} onChange={handleChange} className="w-full p-3 border rounded" required />
+        <input name="endereco" placeholder="Endereço" value={formData.endereco} onChange={handleChange} className="w-full p-3 border rounded" />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="E-mail"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
+        <FileUploadZone label="RG/CPF (arquivo) *" accept=".pdf,.jpg,.png" multiple onFilesSelected={(files) => setRgCpfFiles(files)} />
+        <FileUploadZone label="CAF (arquivo) *" accept=".pdf" onFilesSelected={(files) => setCafFiles(files)} />
+        <FileUploadZone label="Comprovante de Endereço" accept=".pdf,.jpg,.png" onFilesSelected={(files) => setEnderecoFiles(files)} />
 
-        <input
-          type="text"
-          name="telefone"
-          placeholder="Telefone"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="cpf"
-          placeholder="CPF"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="rg"
-          placeholder="RG"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="endereco"
-          placeholder="Endereço completo"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
-
-        {/* CAF */}
-        <input
-          type="text"
-          name="caf"
-          placeholder="Número do CAF"
-          className="w-full p-3 border rounded"
-          onChange={handleChange}
-          required
-        />
-
-        {/* DOCUMENTOS */}
-
-        <FileUploadZone
-          label="RG/CPF"
-          accept=".pdf,.jpg,.png"
-          onFilesSelected={(files) =>
-            setDocuments((prev) => ({ ...prev, rgCpf: files }))
-          }
-        />
-
-        <FileUploadZone
-          label="Comprovante de Endereço"
-          accept=".pdf,.jpg,.png"
-          onFilesSelected={(files) =>
-            setDocuments((prev) => ({ ...prev, comprovanteEndereco: files }))
-          }
-        />
-
-        <FileUploadZone
-          label="Documento do CAF"
-          accept=".pdf,.jpg,.png"
-          onFilesSelected={(files) =>
-            setDocuments((prev) => ({ ...prev, cafDocumento: files }))
-          }
-        />
-
-        <button
-          type="submit"
-          className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium"
-        >
-          Enviar cadastro
-        </button>
+        <div className="flex gap-3 justify-end">
+          <button type="submit" className="px-6 py-2 bg-green-700 text-white rounded">Enviar cadastro</button>
+        </div>
       </form>
     </div>
   );
