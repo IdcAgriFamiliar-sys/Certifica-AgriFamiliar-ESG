@@ -1,4 +1,4 @@
-// src/components/LandingPage.tsx
+// src/componentes/LandingPage.tsx
 
 import React from 'react';
 import { Leaf, Award, FileText, ArrowRight } from 'lucide-react';
