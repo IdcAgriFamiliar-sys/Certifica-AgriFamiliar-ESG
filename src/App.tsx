@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from "react";
-// CORREÇÃO TS2307: Adicionando a extensão .tsx a todas as importações de componentes
 import LandingPage from "./components/LandingPage.tsx";
 import Login from "./components/Login.tsx";
-import Dashboard from "./components/Dashboard.tsx";
+import Dashboard, { UserRole } from "./components/Dashboard.tsx";
 import FarmerRegistrationForm from "./components/FarmerRegistrationForm.tsx";
 import AuditorRegistrationForm from "./components/AuditorRegistrationForm.tsx";
-
-export type UserRole =
-  | "admin"
-  | "gestor"
-  | "coordenador"
-  | "auditor"
-  | "agricultor"
-  | "guest";
 
 type Page =
   | "landing"
