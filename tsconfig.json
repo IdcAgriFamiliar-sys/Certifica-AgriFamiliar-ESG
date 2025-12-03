@@ -20,6 +20,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }] 
+  // INCLUINDO APENAS OS ARQUIVOS DA PASTA SRC
+  "include": ["src"] 
+  // A linha "references" que causava o erro TS6053 foi removida.
 }
