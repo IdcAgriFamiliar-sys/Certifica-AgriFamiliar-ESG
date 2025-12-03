@@ -1,4 +1,4 @@
-// src/components/AuditorRegistrationForm.tsx
+// src/componentes/AuditorRegistrationForm.tsx
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
 
@@ -68,51 +68,4 @@ const AuditorRegistrationForm: React.FC = () => {
       curriculo: curriculoFiles ? Array.from(curriculoFiles).map((f) => f.name) : [],
     };
 
-    console.log("Credenciamento auditor (preview):", preview);
-    setSubmitted(true);
-  };
-
-  if (submitted) {
-    return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-bold text-green-700">Credenciamento enviado!</h2>
-        <p className="text-gray-600">Nossa equipe fará a análise e entrará em contato.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Credenciamento de Auditor(a)</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-3">
-          <input name="nome" placeholder="Nome completo" onChange={handleChange} className="p-3 border rounded" required />
-          <input name="email" type="email" placeholder="E-mail" onChange={handleChange} className="p-3 border rounded" required />
-          <input name="telefone" placeholder="Telefone" onChange={handleChange} className="p-3 border rounded" />
-          <input name="cpf" placeholder="CPF" onChange={handleChange} className="p-3 border rounded" required />
-          <input name="conselho" placeholder="Conselho de Classe" onChange={handleChange} className="p-3 border rounded" required />
-          <input name="registroConselho" placeholder="Nº registro conselho" onChange={handleChange} className="p-3 border rounded" required />
-          <input name="endereco" placeholder="Endereço" onChange={handleChange} className="p-3 border rounded" />
-        </div>
-
-        <FileUploadZone label="RG (arquivo)" accept=".pdf,.jpg,.png" onFilesSelected={(files) => setRgFiles(files)} multiple />
-        <FileUploadZone label="CPF (arquivo)" accept=".pdf,.jpg,.png" onFilesSelected={(files) => setCpfFiles(files)} multiple />
-        <FileUploadZone label="Certidão Negativa Municipal" accept=".pdf" onFilesSelected={(files) => setMunicipalFiles(files)} multiple />
-        <FileUploadZone label="Certidão Negativa Estadual" accept=".pdf" onFilesSelected={(files) => setEstadualFiles(files)} multiple />
-        <FileUploadZone label="Certidão Negativa Federal" accept=".pdf" onFilesSelected={(files) => setFederalFiles(files)} multiple />
-        <FileUploadZone label="CNDT (Trabalhista)" accept=".pdf" onFilesSelected={(files) => setCndtFiles(files)} />
-        <FileUploadZone label="Regularidade FGTS (CRF)" accept=".pdf" onFilesSelected={(files) => setFgtsFiles(files)} />
-        <FileUploadZone label="Diploma" accept=".pdf,.jpg,.png" onFilesSelected={(files) => setDiplomaFiles(files)} />
-        <FileUploadZone label="Registro Profissional (Conselho)" accept=".pdf,.jpg,.png" onFilesSelected={(files) => setRegistroFiles(files)} />
-        <FileUploadZone label="Comprovante de Endereço" accept=".pdf,.jpg,.png" onFilesSelected={(files) => setEnderecoFiles(files)} />
-        <FileUploadZone label="Currículo (PDF)" accept=".pdf" onFilesSelected={(files) => setCurriculoFiles(files)} />
-
-        <div className="text-right">
-          <button type="submit" className="px-6 py-2 bg-blue-700 text-white rounded">Enviar credenciamento</button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-export default AuditorRegistrationForm;
+    console.log("Credenciamento auditor (preview):", preview)
