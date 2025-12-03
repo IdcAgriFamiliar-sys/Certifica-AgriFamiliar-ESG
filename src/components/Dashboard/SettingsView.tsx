@@ -1,43 +1,32 @@
 import React from 'react';
-import { Settings, User, Lock, DollarSign, Bell, Globe, Database } from 'lucide-react';
+import { Settings, User, Lock, Bell } from 'lucide-react';
 
 const SettingsView: React.FC = () => {
-  const settingsOptions = [
-    { icon: <User size={20} />, title: 'Perfil do Usuário', description: 'Gerencie seu nome, e-mail e informações de contato.' },
-    { icon: <Lock size={20} />, title: 'Segurança e Senha', description: 'Altere sua senha e configure a autenticação de dois fatores.' },
-    { icon: <Bell size={20} />, title: 'Notificações', description: 'Defina como e quando você deseja receber alertas do sistema.' },
-    { icon: <Globe size={20} />, title: 'Localização e Idioma', description: 'Configure o fuso horário, formato de data e idioma.' },
-    { icon: <DollarSign size={20} />, title: 'Configurações de Faturamento', description: 'Gerencie planos de assinatura e métodos de pagamento.' },
-    { icon: <Database size={20} />, title: 'Backup e Dados', description: 'Realize backup de dados ou solicite exportação de informações do sistema.' },
+  const options = [
+    { icon: <User size={18} />, title: 'Perfil do Usuário', desc: 'Atualize nome, e-mail e contato.' },
+    { icon: <Lock size={18} />, title: 'Segurança', desc: 'Alterar senha e 2FA.' },
+    { icon: <Bell size={18} />, title: 'Notificações', desc: 'Configurar alertas e lembretes.' },
   ];
 
   return (
     <div className="space-y-6">
-      <h3 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-        <Settings size={32} className="text-gray-600" />
-        Configurações do Sistema
-      </h3>
+      <h3 className="text-2xl font-bold flex items-center gap-3"><Settings size={28} className="text-gray-600" /> Configurações</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {settingsOptions.map((option, index) => (
-          <div key={index} className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-gray-400 hover:shadow-xl transition-shadow cursor-pointer">
-            <div className="flex items-center gap-3 mb-2 text-gray-600">
-              {option.icon}
-              <h4 className="text-xl font-semibold text-gray-800">{option.title}</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {options.map((o, i) => (
+          <div key={i} className="bg-white p-4 rounded shadow flex items-start gap-4">
+            <div className="text-gray-700">{o.icon}</div>
+            <div>
+              <h4 className="font-semibold">{o.title}</h4>
+              <p className="text-sm text-gray-600">{o.desc}</p>
             </div>
-            <p className="text-gray-500 text-sm">{option.description}</p>
-            <button className="mt-3 text-indigo-600 text-sm font-medium hover:underline">
-              Gerenciar
-            </button>
           </div>
         ))}
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h4 className="text-lg font-semibold mb-4 text-gray-800">Opções Avançadas (Administrador)</h4>
-        <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition shadow-md">
-          Redefinir Configurações Padrão
-        </button>
+      <div className="bg-white p-4 rounded shadow">
+        <h4 className="font-semibold mb-2">Opções Avançadas</h4>
+        <button className="px-3 py-2 bg-red-600 text-white rounded">Redefinir</button>
       </div>
     </div>
   );
