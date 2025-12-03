@@ -2,13 +2,10 @@
 
 import React, { useState, Dispatch, SetStateAction } from 'react';
 import { Users, BarChart2, BookOpen, DollarSign, Package, Settings, ClipboardList } from 'lucide-react';
-import { UserRole } from '../App'; // Importa UserRole do App
-
-// CORREÇÃO: Assumindo que Header e Sidebar estão no mesmo nível da Dashboard, no diretório components
-import Header from './Header'; 
+import { UserRole } from '../App';
+import Header from './Header';
 import Sidebar from './Sidebar';
 
-// CORREÇÃO: Usando './Painel/' (com 'P' maiúsculo) e garantindo que os nomes de arquivos no Painel/ estejam corretos
 import CertificationsView from './Painel/CertificationsView';
 import FarmersView from './Painel/FarmersView';
 import AuditorsView from './Painel/AuditorsView';
@@ -18,7 +15,6 @@ import BatchesView from './Painel/BatchesView';
 import ReportsView from './Painel/ReportsView';
 import SettingsView from './Painel/SettingsView';
 
-// CORREÇÃO: Interface DashboardProps para corrigir TS2322
 interface DashboardProps {
   userRole: UserRole;
   onLogout: () => void;
@@ -43,7 +39,7 @@ const navItems: NavItem[] = [
   { id: 'settings', name: 'Configurações', icon: Settings, component: SettingsView },
 ];
 
-const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, setUserRole }) => {
+const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout }) => {
   const [activeView, setActiveView] = useState<string>(navItems[0].id);
 
   const ActiveComponent = navItems.find(item => item.id === activeView)?.component || CertificationsView;
@@ -52,7 +48,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, setUserRole }
     <div className="flex h-screen bg-gray-100">
       <Sidebar navItems={navItems} activeView={activeView} setActiveView={setActiveView} userRole={userRole} onLogout={onLogout} />
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* CORREÇÃO: Header agora aceita activeViewName, userRole e onLogout */}
         <Header activeViewName={navItems.find(item => item.id === activeView)?.name || 'Dashboard'} userRole={userRole} onLogout={onLogout} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
           <ActiveComponent />
