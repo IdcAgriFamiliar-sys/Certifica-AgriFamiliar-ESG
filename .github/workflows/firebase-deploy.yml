@@ -1,0 +1,38 @@
+name: Deploy Web App to Firebase Hosting # Nome do seu workflow
+
+on:
+  push:
+    branches:
+      - main # Seu branch principal é 'main'.
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # Usando Node.js 20, uma versão LTS estável e mais recente que a 18.
+                              # A versão 24.x é muito nova e pode não ser totalmente suportada ainda em ambientes de CI/CD.
+
+      - name: Install Dependencies
+        run: npm install # Usando 'npm' como gerenciador de pacotes.
+
+      - name: Build Project
+        run: npm run build # Seu comando de build é 'npm run build'.
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          # Seu segredo é 'certifica-agri-familiar-esg'.
+          # Por convenção em GitHub Actions e para segurança, convertemos para maiúsculas e usamos underscores.
+          firebaseServiceAccount: '${{ secrets.CERTIFICA_AGRI_FAMILIAR_ESG }}'
+          projectId: 'sigaf-certifica-agrifamiliar' # ID do seu projeto Firebase.
+          # publicFolder: 'dist' # MANTENHA COMENTADO, a menos que o seu firebase.json esteja apontando para a pasta errada.
+                               # Projetos Vite, como o seu, geralmente geram a pasta 'dist' após o build,
+                               # e o 'firebase.json' deve ter 'public": "dist"'.

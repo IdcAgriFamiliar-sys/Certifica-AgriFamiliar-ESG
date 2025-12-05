@@ -1,0 +1,7 @@
+firebase-debug.log
+node_modules
+# Service account (não commitar)
+sigaf-certifica-agrifamiliar-firebase-adminsdk-fbsvc-5fc91f89fd.json
+
+# Server node_modules
+server/node_modules

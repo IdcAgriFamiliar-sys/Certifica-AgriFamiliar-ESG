@@ -1,76 +1,77 @@
+// src/components/Dashboard.tsx
 import React, { useState } from "react";
-import Header from "./Header.tsx";
+import Cabecalho from "./Cabecalho";
 
-import CertificationsView from "./Dashboard/CertificationsView.tsx";
-import FarmersView from "./Dashboard/FarmersView.tsx";
-import AuditorsView from "./Dashboard/AuditorsView.tsx";
-import AuditsView from "./Dashboard/AuditsView.tsx";
-import FinancesView from "./Dashboard/FinancesView.tsx";
-import BatchesView from "./Dashboard/BatchesView.tsx";
-import ReportsView from "./Dashboard/ReportsView.tsx";
-import SettingsView from "./Dashboard/SettingsView.tsx";
+import CertificationsView from "./Dashboard/CertificationsView";
+import FarmersView from "./Dashboard/FarmersView";
+import AuditorsView from "./Dashboard/AuditorsView";
+import AuditsView from "./Dashboard/AuditsView";
+import FinancesView from "./Dashboard/FinancesView";
+import BatchesView from "./Dashboard/BatchesView";
+import ReportsView from "./Dashboard/ReportsView";
+import SettingsView from "./Dashboard/SettingsView";
 
-export type UserRole =
-  | "admin"
-  | "gestor"
-  | "coordenador"
-  | "auditor"
-  | "agricultor"
-  | "guest";
+import type { UserRole, Page, DashboardView } from "../types";
 
 interface Props {
   userRole: UserRole;
   onLogout: () => void;
   setUserRole?: (role: UserRole) => void;
-  go?: (path: string) => void;
+  go?: (to: Page) => void;
 }
 
-const navByRole: Record<UserRole, Array<{ id: string; label: string }>> = {
+const navByRole: Record<UserRole, Array<{ id: DashboardView; label: string }>> = {
   admin: [
-    { id: "cert", label: "Certificações" },
-    { id: "farmers", label: "Agricultores" },
-    { id: "auditors", label: "Auditores" },
-    { id: "audits", label: "Auditorias" },
-    { id: "batches", label: "Lotes" },
-    { id: "finances", label: "Finanças" },
-    { id: "reports", label: "Relatórios" },
-    { id: "settings", label: "Configurações" },
+    { id: "certificacoes", label: "Certificações" },
+    { id: "agricultores", label: "Agricultores" },
+    { id: "auditores", label: "Auditores" },
+    { id: "auditorias", label: "Auditorias" },
+    { id: "lotes", label: "Lotes" },
+    { id: "financas", label: "Finanças" },
+    { id: "relatorios", label: "Relatórios" },
+    { id: "configuracoes", label: "Configurações" },
   ],
   gestor: [
-    { id: "cert", label: "Certificações" },
-    { id: "farmers", label: "Agricultores" },
-    { id: "audits", label: "Auditorias" },
-    { id: "reports", label: "Relatórios" },
+    { id: "certificacoes", label: "Certificações" },
+    { id: "agricultores", label: "Agricultores" },
+    { id: "auditorias", label: "Auditorias" },
+    { id: "relatorios", label: "Relatórios" },
   ],
   coordenador: [
-    { id: "audits", label: "Auditorias" },
-    { id: "reports", label: "Relatórios" },
+    { id: "auditorias", label: "Auditorias" },
+    { id: "relatorios", label: "Relatórios" },
   ],
-  auditor: [],
-  agricultor: [],
+  auditor: [
+    { id: "auditorias", label: "Minhas Auditorias" },
+    { id: "configuracoes", label: "Meus Dados" },
+  ],
+  agricultor: [
+    { id: "certificacoes", label: "Minhas Certificações" },
+    { id: "lotes", label: "Meus Lotes" },
+  ],
   guest: [],
 };
 
 const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
-  const [selected, setSelected] = useState<string>("cert");
+  const [selected, setSelected] = useState<DashboardView>("certificacoes");
 
   const renderPanel = () => {
     switch (selected) {
-      case "cert":
+      case "certificacoes":
         return <CertificationsView />;
-      case "farmers":
+      case "agricultores":
         return <FarmersView />;
-      case "auditors":
+      case "auditores":
         return <AuditorsView />;
-      case "audits":
+      case "auditorias":
         return <AuditsView />;
-      case "finances":
+      case "financas":
         return <FinancesView />;
-      case "batches":
+      case "lotes":
         return <BatchesView />;
-      case "reports":
+      case "relatorios":
         return <ReportsView />;
-      case "settings":
+      case "configuracoes":
         return <SettingsView />;
       default:
         return <div>Selecione um painel</div>;
@@ -79,7 +80,7 @@ const Dashboard: React.FC<Props> = ({ userRole, onLogout }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header userRole={userRole} onLogout={onLogout} />
+      <Cabecalho userRole={userRole} onLogout={onLogout} onSelectView={setSelected} activeViewName={selected} />
       <div className="flex flex-1">
         <nav className="w-64 bg-gray-100 p-4 border-r">
           {navByRole[userRole].map((item) => (

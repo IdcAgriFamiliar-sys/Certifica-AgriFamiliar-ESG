@@ -1,20 +1,31 @@
+// src/types.ts
 // ============================================================================
-// Tipos e Interfaces globais para o Painel de Gestão
+// Tipos e Interfaces globais para App e Dashboard
 // ============================================================================
 
-// --- Tipos de Navegação ---
+// === Tipos de App ===
+export type UserRole = 'admin' | 'gestor' | 'coordenador' | 'auditor' | 'agricultor' | 'guest';
+
+export type Page =
+  | 'landing'
+  | 'login'
+  | 'dashboard'
+  | 'farmer-register'
+  | 'auditor-register';
+
+// === Tipos do Dashboard ===
 export type DashboardView = 
-  'visao-geral' | 
-  'certificacoes' | 
-  'agricultores' | 
-  'auditores' | 
-  'auditorias' | 
-  'financas' | 
-  'lotes' | 
-  'relatorios' | 
-  'configuracoes';
+  | 'visao-geral' 
+  | 'certificacoes' 
+  | 'agricultores' 
+  | 'auditores' 
+  | 'auditorias' 
+  | 'financas' 
+  | 'lotes' 
+  | 'relatorios' 
+  | 'configuracoes';
 
-// --- Dados de Certificações ---
+// === Dados de Certificações ===
 export interface Certification {
   id: string;
   nome: string;
@@ -22,56 +33,56 @@ export interface Certification {
   agricultor: string;
   auditor: string;
   status: 'Ativo' | 'Vencido' | 'Pendente';
-  validade: number; // Timestamp
+  validade: number; // timestamp
 }
 
-// --- Dados de Agricultores ---
+// === Dados de Agricultores ===
 export interface Farmer {
   id: string;
   nomePropriedade: string;
   proprietario: string;
   localizacao: string;
   statusCertificacao: 'Certificado' | 'Em Avaliação' | 'Rejeitado';
-  lastActivity: number; // Timestamp
+  lastActivity: number; // timestamp
 }
 
-// --- Dados de Auditores ---
+// === Dados de Auditores ===
 export interface Auditor {
   id: string;
   nome: string;
   registro: string;
   especialidade: string;
   status: 'Aprovado' | 'Pendente' | 'Rejeitado';
-  lastAudit: number; // Timestamp
+  lastAudit: number; // timestamp
 }
 
-// --- Dados de Auditorias (Agendamentos) ---
+// === Dados de Auditorias (Agendamentos) ===
 export interface Audit {
   id: string;
   certificacao: string;
   agricultor: string;
   auditor: string;
-  dataAgendada: number; // Timestamp
+  dataAgendada: number; // timestamp
   status: 'Concluída' | 'Em Andamento' | 'Cancelada';
 }
 
-// --- Dados de Lotes de Produção ---
+// === Dados de Lotes de Produção ===
 export interface Batch {
   id: string;
   produto: string;
   agricultor: string;
-  dataColheita: number; // Timestamp
+  dataColheita: number; // timestamp
   statusRastreio: 'Pronto Venda' | 'Em Processamento' | 'Em Campo';
   certificacaoID: string;
 }
 
-// --- Dados de Faturamento (Exemplo) ---
+// === Dados de Faturamento / Transações ===
 export interface Transaction {
-    id: string;
-    description: string;
-    amount: number;
-    type: 'Income' | 'Expense';
-    date: number; // Timestamp
+  id: string;
+  description: string;
+  amount: number;
+  type: 'Income' | 'Expense';
+  date: number; // timestamp
 }
 
 // ============================================================================

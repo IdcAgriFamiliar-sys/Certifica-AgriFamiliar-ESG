@@ -1,10 +1,9 @@
 // src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiFetch } from '../services/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { apiFetch } from "../services/api";
+import type { UserRole } from "../types";
 
-export type UserRole = 'admin' | 'gestor' | 'coordenador' | 'auditor' | 'agricultor' | 'guest';
-
-type User = {
+export type User = {
   id: string | number;
   nome?: string;
   email?: string;
@@ -24,44 +23,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const s = localStorage.getItem('user');
-    return s ? JSON.parse(s) as User : null;
+    const s = localStorage.getItem("user");
+    return s ? (JSON.parse(s) as User) : null;
   });
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (token && !user) {
-      // opcional: validar token no backend e buscar user
       (async () => {
         try {
-          const data = await apiFetch('/auth/me'); // opcional endpoint
-          setUser(data.user);
-          localStorage.setItem('user', JSON.stringify(data.user));
+          const res = await apiFetch("/auth/me");
+          const data = await res.json();
+          if (data.user) {
+            setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          } else {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+          }
         } catch {
-          // se inválido, limpar
           setUser(null);
           setToken(null);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
         }
       })();
     }
-  }, []);
+  }, [token, user]);
 
   const login = async (email: string, senha: string) => {
     setLoading(true);
     try {
-      const res = await apiFetch('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, senha })
+      const res = await apiFetch("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, senha }),
       });
-      // espera { token: string, user: { id, role, nome, email } }
-      const { token: t, user: u } = res;
+      const data = await res.json();
+      const { token: t, user: u } = data;
       setToken(t);
       setUser(u);
-      localStorage.setItem('token', t);
-      localStorage.setItem('user', JSON.stringify(u));
+      localStorage.setItem("token", t);
+      localStorage.setItem("user", JSON.stringify(u));
     } finally {
       setLoading(false);
     }
@@ -70,8 +75,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const isAllowed = (roles: UserRole[] | UserRole) => {
@@ -89,6 +94,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

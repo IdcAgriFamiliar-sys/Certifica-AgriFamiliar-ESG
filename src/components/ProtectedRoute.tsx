@@ -1,26 +1,18 @@
-// src/components/ProtectedRoute.tsx
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import type { UserRole } from '../contexts/AuthContext';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import type { UserRole } from "../types";
 
-interface ProtectedRouteProps {
+interface Props {
   children: React.ReactNode;
-  allow?: UserRole[] | UserRole; // roles permitidos
-  redirectTo?: string;
+  roles?: UserRole[] | UserRole;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allow = [], redirectTo = '/login' }) => {
-  const { user } = useAuth();
-  if (!user) return <Navigate to={redirectTo} replace />;
+const ProtectedRoute: React.FC<Props> = ({ children, roles }) => {
+  const { user, isAllowed } = useAuth();
 
-  const allowed = Array.isArray(allow) ? allow : [allow];
-  if (allowed.length === 0) return <>{children}</>; // se não passou roles, qualquer usuário autenticado pode acessar
-
-  if (!allowed.includes(user.role)) {
-    // pode redirecionar para dashboard do próprio usuário
-    return <Navigate to="/" replace />;
-  }
+  if (!user) return <Navigate to="/login" />;
+  if (roles && !isAllowed(roles)) return <Navigate to="/dashboard" />;
 
   return <>{children}</>;
 };
