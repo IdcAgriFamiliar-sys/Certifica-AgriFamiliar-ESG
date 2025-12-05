@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { DollarSign, Plus, Calendar, Package, TrendingUp, FileDown } from "lucide-react";
+import { Plus, Package, TrendingUp, FileDown } from "lucide-react";
 import Button from "../Button";
 import Modal from "../Modal";
 import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp } from "firebase/firestore";

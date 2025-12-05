@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { auth, db, storage } from '../services/firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -22,16 +22,16 @@ const ConnectivityTest: React.FC = () => {
                 // Check root documents to see if DB exists
                 const response = await fetch("https://firestore.googleapis.com/v1/projects/sigaf-certifica-agrifamiliar/databases/(default)/documents");
                 addLog(`Status da API REST (Root): ${response.status} ${response.statusText}`);
-                
+
                 if (response.status === 404) {
                     const text = await response.text();
                     if (text.includes("default") && text.includes("not found")) {
                         throw new Error("BANCO DE DADOS NÃO ENCONTRADO. Crie o Firestore Database no console.");
                     }
                 }
-                
+
                 if (!response.ok && response.status !== 200) {
-                     addLog(`AVISO: Resposta não-200 da API: ${response.status}`);
+                    addLog(`AVISO: Resposta não-200 da API: ${response.status}`);
                 } else {
                     addLog("API REST respondeu OK (Banco existe).");
                 }

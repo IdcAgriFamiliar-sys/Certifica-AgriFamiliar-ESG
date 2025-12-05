@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileCheck, Plus, Search, Filter, MoreVertical, Download, FileText } from 'lucide-react';
-import { Certification } from '../../types';
+// import { Certification } from '../../types';
 import Modal from '../Modal';
 import { db } from '../../services/firebase';
 import { collection, onSnapshot, addDoc, query, orderBy, doc, getDoc } from 'firebase/firestore';

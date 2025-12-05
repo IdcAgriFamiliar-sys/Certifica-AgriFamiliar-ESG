@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserPlus, Search, ChevronRight, Clock, CheckCircle, XCircle, FileText, GraduationCap } from 'lucide-react';
-import { Auditor } from '../../types';
+import { Shield, UserPlus, Search, ChevronRight, CheckCircle, XCircle, FileText, GraduationCap } from 'lucide-react';
+// import { Auditor } from '../../types';
 import Button from '../Button';
 import { db } from '../../services/firebase';
 import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';

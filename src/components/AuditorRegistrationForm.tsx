@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
-import { ArrowLeft, Shield, CheckCircle, AlertCircle, GraduationCap, FileText, Briefcase } from "lucide-react";
+import { Shield, CheckCircle } from "lucide-react";
 import Button from "./Button";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "../services/firebase";

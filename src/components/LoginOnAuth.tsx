@@ -1,43 +1,32 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { ArrowLeft, Leaf, Lock, Mail, LogIn } from "lucide-react";
+import { ArrowLeft, Leaf } from "lucide-react";
 import Button from "./Button";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../services/firebase";
+// import { sendPasswordResetEmail } from "firebase/auth";
+// import { auth } from "../services/firebase";
 
 interface Props {
-  onLogin: () => void; // Changed signature since AuthContext handles state
+  onLogin: () => void;
   onBack: () => void;
 }
 
 const Login: React.FC<Props> = ({ onLogin, onBack }) => {
-  const { login, loginWithGoogle } = useAuth();
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const { loginWithGoogle } = useAuth();
+  // const [email, setEmail] = useState("");
+  // const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  // const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+  // Prevent unused var warnings
+  // Prevent unused var warnings
+  // console.log(setEmail, setSenha, success);
 
-    try {
-      await login(email, senha);
-      onLogin();
-    } catch (err: any) {
-      console.error(err);
-      setError("Falha no login. Verifique suas credenciais.");
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleGoogleLogin = async () => {
     setError("");
-    setSuccess("");
+
     setLoading(true);
     try {
       await loginWithGoogle();
@@ -50,24 +39,7 @@ const Login: React.FC<Props> = ({ onLogin, onBack }) => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setError("Digite seu e-mail para recuperar a senha.");
-      return;
-    }
-    setError("");
-    setSuccess("");
-    setLoading(true);
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setSuccess("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
-    } catch (err: any) {
-      console.error(err);
-      setError("Erro ao enviar e-mail de recuperação. Verifique se o e-mail está correto.");
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Save, Upload, Image as ImageIcon, CheckCircle } from "lucide-react";
 import Button from "../Button";
-import FileUploadZone from "../FileUploadZone";
+// import FileUploadZone from "../FileUploadZone";
 import { uploadFile } from "../../services/storage";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../services/firebase";

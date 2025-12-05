@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, Search, Plus, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { Search, Plus, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { Transaction } from '../../types';
 import Modal from '../Modal';
 

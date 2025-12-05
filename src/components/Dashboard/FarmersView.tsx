@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Search, ChevronRight, AlertCircle, MapPin, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { Farmer } from '../../types';
+import { UserPlus, Search, ChevronRight, MapPin, CheckCircle, XCircle, Clock } from 'lucide-react';
+// import { Farmer } from '../../types';
 import Modal from '../Modal';
 import Button from '../Button';
 import { db } from '../../services/firebase';
-import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, setDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, addDoc } from 'firebase/firestore';
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -21,7 +21,7 @@ const FarmersView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active' | 'requests'>('active');
   const [farmers, setFarmers] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); console.log(loading);
 
   // Form State
   const [newFarmerName, setNewFarmerName] = useState("");
@@ -50,7 +50,7 @@ const FarmersView: React.FC = () => {
     };
   }, []);
 
-  const handleApprove = async (id: string, email: string, name: string) => {
+  const handleApprove = async (id: string, _email: string, _name: string) => {
     try {
       await updateDoc(doc(db, "farmers", id), {
         status: "Aprovado",

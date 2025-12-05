@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TrendingDown, Plus, Calendar, Tag, FileDown } from "lucide-react";
+import { TrendingDown, Plus, Tag, FileDown } from "lucide-react";
 import Button from "../Button";
 import Modal from "../Modal";
 import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp } from "firebase/firestore";

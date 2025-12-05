@@ -1,12 +1,11 @@
-// src/App.tsx
 import React, { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import LandingPage from "./components/LandingPage.tsx";
-import LoginOnAuth from "./components/LoginOnAuth.tsx";
-import Dashboard from "./components/Dashboard.tsx";
-import FarmerRegistrationForm from "./components/FarmerRegistrationForm.tsx";
-import AuditorRegistrationForm from "./components/AuditorRegistrationForm.tsx";
-import ConnectivityTest from "./components/ConnectivityTest.tsx";
+import LandingPage from "./components/LandingPage";
+import LoginOnAuth from "./components/LoginOnAuth";
+import Dashboard from "./components/Dashboard";
+import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
+import AuditorRegistrationForm from "./components/AuditorRegistrationForm";
+import ConnectivityTest from "./components/ConnectivityTest";
 
 import type { UserRole, Page } from "./types";
 
@@ -56,7 +55,7 @@ const App: React.FC = () => {
 
         <Route
           path="/login"
-          element={<LoginOnAuth onLogin={handleLogin} onBack={() => go("landing")} />}
+          element={<LoginOnAuth onLogin={() => handleLogin("auditor")} onBack={() => go("landing")} />}
         />
 
         <Route
@@ -91,12 +90,10 @@ const App: React.FC = () => {
         <Route
           path="/dashboard"
           element={
-            isLoggedIn && userRole !== "guest" ? (
+            isLoggedIn ? (
               <Dashboard
                 userRole={userRole}
                 onLogout={handleLogout}
-                setUserRole={setUserRole}
-                go={go}
               />
             ) : (
               <Navigate to="/login" replace />

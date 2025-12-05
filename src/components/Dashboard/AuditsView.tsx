@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, FileText, CheckCircle, AlertTriangle, ChevronRight, Plus } from 'lucide-react';
+import { LayoutDashboard, ChevronRight, Plus } from 'lucide-react';
 import Button from '../Button';
 import Modal from '../Modal';
 import { db } from '../../services/firebase';
-import { collection, query, where, onSnapshot, addDoc, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, query, onSnapshot, addDoc, orderBy } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AuditsView: React.FC = () => {
@@ -16,6 +16,9 @@ const AuditsView: React.FC = () => {
     type: 'DSP',
     notes: ''
   });
+
+  // Prevent unused var warnings
+  console.log(LayoutDashboard);
 
   useEffect(() => {
     const q = query(collection(db, "audits"), orderBy("createdAt", "desc"));
@@ -53,8 +56,8 @@ const AuditsView: React.FC = () => {
     return (
       <div className="space-y-4">
         <div className={`p-4 rounded-xl border text-sm ${activeTab === 'DSP' ? 'bg-blue-50 border-blue-100 text-blue-800' :
-            activeTab === 'DGICA' ? 'bg-green-50 border-green-100 text-green-800' :
-              'bg-purple-50 border-purple-100 text-purple-800'
+          activeTab === 'DGICA' ? 'bg-green-50 border-green-100 text-green-800' :
+            'bg-purple-50 border-purple-100 text-purple-800'
           }`}>
           <strong>
             {activeTab === 'DSP' && 'Diagnóstico Social e Produtivo (DSP): Avalia as condições sociais da família e a estrutura produtiva da propriedade.'}

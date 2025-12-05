@@ -5,3 +5,7 @@ sigaf-certifica-agrifamiliar-firebase-adminsdk-fbsvc-5fc91f89fd.json
 
 # Server node_modules
 server/node_modules
+
+# Build artifacts
+dist
+.firebase

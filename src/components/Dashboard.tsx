@@ -30,7 +30,7 @@ import SalesView from "./Dashboard/SalesView";
 import ExpensesView from "./Dashboard/ExpensesView";
 import ProductionView from "./Dashboard/ProductionView";
 
-import type { UserRole, Page, DashboardView } from "../types";
+import type { UserRole, DashboardView } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 
 interface Props {

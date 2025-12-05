@@ -2,7 +2,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     signOut as firebaseSignOut,
-    User
+    // User
 } from "firebase/auth";
 import {
     doc,
