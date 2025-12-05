@@ -14,16 +14,19 @@ export type Page =
   | 'auditor-register';
 
 // === Tipos do Dashboard ===
-export type DashboardView = 
-  | 'visao-geral' 
-  | 'certificacoes' 
-  | 'agricultores' 
-  | 'auditores' 
-  | 'auditorias' 
-  | 'financas' 
-  | 'lotes' 
-  | 'relatorios' 
-  | 'configuracoes';
+export type DashboardView =
+  | 'visao-geral'
+  | 'certificacoes'
+  | 'agricultores'
+  | 'auditores'
+  | 'auditorias'
+  | 'financas'
+  | 'lotes'
+  | 'relatorios'
+  | 'configuracoes'
+  | 'vendas'
+  | 'gastos'
+  | 'producao';
 
 // === Dados de Certificações ===
 export interface Certification {

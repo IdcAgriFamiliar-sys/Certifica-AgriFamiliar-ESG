@@ -1,84 +1,169 @@
-import React from 'react';
-import { Briefcase, Clock, CheckCircle, XCircle, Search, Filter } from 'lucide-react';
-import { Audit } from '../../types';
-
-const mockAudits: Audit[] = [
-  { id: 'AUDIT-001', certificacao: 'ESG Ouro', agricultor: 'Sítio Esperança', auditor: 'Dr. Lucas', dataAgendada: Date.now() + 86400000 * 2, status: 'Em Andamento' },
-  { id: 'AUDIT-002', certificacao: 'Sustentabilidade', agricultor: 'Fazenda União', auditor: 'Dra. Camila', dataAgendada: Date.now() - 86400000 * 5, status: 'Concluída' },
-];
-
-const getStatusColor = (status: Audit['status']) => {
-  switch (status) {
-    case 'Concluída': return 'bg-green-100 text-green-800';
-    case 'Em Andamento': return 'bg-yellow-100 text-yellow-800';
-    case 'Cancelada': return 'bg-red-100 text-red-800';
-    default: return 'bg-gray-100 text-gray-800';
-  }
-};
-
-const getStatusIcon = (status: Audit['status']) => {
-  switch (status) {
-    case 'Concluída': return <CheckCircle size={16} />;
-    case 'Em Andamento': return <Clock size={16} />;
-    case 'Cancelada': return <XCircle size={16} />;
-    default: return <Briefcase size={16} />;
-  }
-};
+import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, FileText, CheckCircle, AlertTriangle, ChevronRight, Plus } from 'lucide-react';
+import Button from '../Button';
+import Modal from '../Modal';
+import { db } from '../../services/firebase';
+import { collection, query, where, onSnapshot, addDoc, orderBy, serverTimestamp } from 'firebase/firestore';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AuditsView: React.FC = () => {
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-2xl font-bold flex items-center gap-3"><Briefcase size={28} className="text-cyan-600" /> Agenda de Auditorias</h3>
-        <div className="flex items-center gap-3">
-          <button className="px-3 py-2 border rounded">Importar</button>
-          <button className="px-3 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700">Agendar</button>
-        </div>
-      </div>
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<'DSP' | 'DGICA' | 'DGCS'>('DSP');
+  const [audits, setAudits] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newAuditData, setNewAuditData] = useState({
+    farmerName: '',
+    type: 'DSP',
+    notes: ''
+  });
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="relative w-full max-w-lg">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input className="w-full pl-10 pr-3 py-2 border rounded" placeholder="Buscar por ID, agricultor ou auditor..." />
+  useEffect(() => {
+    const q = query(collection(db, "audits"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAudits(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleCreateAudit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    try {
+      await addDoc(collection(db, "audits"), {
+        ...newAuditData,
+        auditorId: user.uid,
+        auditorName: user.displayName || "Auditor",
+        status: "Em Andamento",
+        createdAt: Date.now(),
+        date: new Date().toISOString()
+      });
+      setIsModalOpen(false);
+      setNewAuditData({ farmerName: '', type: 'DSP', notes: '' });
+      alert("Auditoria iniciada com sucesso!");
+    } catch (error) {
+      console.error("Error creating audit:", error);
+      alert("Erro ao criar auditoria.");
+    }
+  };
+
+  const filteredAudits = audits.filter(a => a.type === activeTab);
+
+  const renderContent = () => {
+    return (
+      <div className="space-y-4">
+        <div className={`p-4 rounded-xl border text-sm ${activeTab === 'DSP' ? 'bg-blue-50 border-blue-100 text-blue-800' :
+            activeTab === 'DGICA' ? 'bg-green-50 border-green-100 text-green-800' :
+              'bg-purple-50 border-purple-100 text-purple-800'
+          }`}>
+          <strong>
+            {activeTab === 'DSP' && 'Diagnóstico Social e Produtivo (DSP): Avalia as condições sociais da família e a estrutura produtiva da propriedade.'}
+            {activeTab === 'DGICA' && 'Diagnóstico de Gestão e Indicadores (DGICA): Avalia a gestão da propriedade e indicadores ambientais.'}
+            {activeTab === 'DGCS' && 'Diagnóstico de Conformidade Social (DGCS): Verifica o cumprimento de normas sociais e trabalhistas.'}
+          </strong>
+        </div>
+
+        {filteredAudits.length === 0 ? (
+          <div className="text-center py-12 bg-stone-50 rounded-2xl border border-stone-100 border-dashed">
+            <p className="text-stone-500">Nenhuma auditoria {activeTab} encontrada.</p>
           </div>
-          <button className="flex items-center gap-2 px-3 py-2 border rounded text-gray-700"><Filter size={16} /> Filtrar</button>
-        </div>
-
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left text-xs text-gray-500">ID / Certificação</th>
-              <th className="px-4 py-2 text-left text-xs text-gray-500">Agricultor / Auditor</th>
-              <th className="px-4 py-2 text-left text-xs text-gray-500">Data</th>
-              <th className="px-4 py-2 text-center text-xs text-gray-500">Status</th>
-              <th className="px-4 py-2"></th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {mockAudits.map(a => (
-              <tr key={a.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">
-                  <div className="font-medium">{a.id}</div>
-                  <div className="text-xs text-gray-500">{a.certificacao}</div>
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <div>Agricultor: {a.agricultor}</div>
-                  <div className="text-xs text-gray-500">Auditor: {a.auditor}</div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500">{new Date(a.dataAgendada).toLocaleDateString('pt-BR')}</td>
-                <td className="px-4 py-3 text-center">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(a.status)}`}>
-                    {getStatusIcon(a.status)}
-                    <span className="ml-1">{a.status}</span>
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right"><button className="text-cyan-600 hover:underline">Visualizar</button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        ) : (
+          filteredAudits.map(audit => (
+            <div key={audit.id} className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <h4 className="font-bold text-stone-800">{audit.farmerName} - {audit.type}</h4>
+                <p className="text-stone-500 text-sm">
+                  Auditor: {audit.auditorName} • Data: {new Date(audit.createdAt).toLocaleDateString('pt-BR')}
+                </p>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-2 ${audit.status === 'Concluído' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                  {audit.status}
+                </span>
+              </div>
+              <Button variant="outline" size="sm" rightIcon={<ChevronRight className="w-4 h-4" />}>
+                Continuar Auditoria
+              </Button>
+            </div>
+          ))
+        )}
       </div>
+    );
+  };
+
+  return (
+    <div className="space-y-8 animate-fade-in-up">
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-2xl font-bold text-stone-800">Auditorias</h3>
+          <p className="text-stone-500">Realize e acompanhe os diagnósticos de certificação.</p>
+        </div>
+        <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="w-5 h-5" />}>
+          Nova Auditoria
+        </Button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-stone-200 pb-1">
+        {(['DSP', 'DGICA', 'DGCS'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-6 py-3 rounded-t-xl font-bold text-sm transition-all relative top-0.5 ${activeTab === tab
+              ? 'bg-white border border-stone-200 border-b-white text-green-600'
+              : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+              }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* Content Area */}
+      <div className="bg-white rounded-b-2xl rounded-tr-2xl shadow-sm border border-stone-200 border-t-0 p-6 -mt-1">
+        {renderContent()}
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nova Auditoria">
+        <form onSubmit={handleCreateAudit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Nome do Agricultor / Propriedade</label>
+            <input
+              type="text"
+              required
+              value={newAuditData.farmerName}
+              onChange={e => setNewAuditData({ ...newAuditData, farmerName: e.target.value })}
+              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Ex: Sítio Esperança"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Tipo de Auditoria</label>
+            <select
+              value={newAuditData.type}
+              onChange={e => setNewAuditData({ ...newAuditData, type: e.target.value })}
+              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none bg-white"
+            >
+              <option value="DSP">DSP - Diagnóstico Social e Produtivo</option>
+              <option value="DGICA">DGICA - Gestão e Indicadores</option>
+              <option value="DGCS">DGCS - Conformidade Social</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1">Observações Iniciais</label>
+            <textarea
+              rows={3}
+              value={newAuditData.notes}
+              onChange={e => setNewAuditData({ ...newAuditData, notes: e.target.value })}
+              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Observações sobre a visita..."
+            />
+          </div>
+          <div className="pt-4 flex justify-end gap-3">
+            <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+            <Button type="submit">Iniciar Auditoria</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

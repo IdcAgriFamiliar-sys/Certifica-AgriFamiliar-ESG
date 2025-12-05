@@ -6,6 +6,7 @@ import LoginOnAuth from "./components/LoginOnAuth.tsx";
 import Dashboard from "./components/Dashboard.tsx";
 import FarmerRegistrationForm from "./components/FarmerRegistrationForm.tsx";
 import AuditorRegistrationForm from "./components/AuditorRegistrationForm.tsx";
+import ConnectivityTest from "./components/ConnectivityTest.tsx";
 
 import type { UserRole, Page } from "./types";
 
@@ -80,6 +81,11 @@ const App: React.FC = () => {
               <AuditorRegistrationForm />
             </div>
           }
+        />
+
+        <Route
+          path="/test-connection"
+          element={<ConnectivityTest />}
         />
 
         <Route

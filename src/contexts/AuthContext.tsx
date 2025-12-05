@@ -1,82 +1,71 @@
-// src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { apiFetch } from "../services/api";
+import {
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  onAuthStateChanged
+} from "firebase/auth";
+import { auth } from "../services/firebase";
+import { signInWithGoogle, getUserProfile, UserProfile } from "../services/auth";
 import type { UserRole } from "../types";
 
-export type User = {
-  id: string | number;
-  nome?: string;
-  email?: string;
-  role: UserRole;
-};
+export type User = UserProfile;
 
 type AuthContextType = {
   user: User | null;
-  token: string | null;
   loading: boolean;
   login: (email: string, senha: string) => Promise<void>;
-  logout: () => void;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
   isAllowed: (roles: UserRole[] | UserRole) => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const s = localStorage.getItem("user");
-    return s ? (JSON.parse(s) as User) : null;
-  });
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token && !user) {
-      (async () => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
         try {
-          const res = await apiFetch("/auth/me");
-          const data = await res.json();
-          if (data.user) {
-            setUser(data.user);
-            localStorage.setItem("user", JSON.stringify(data.user));
-          } else {
-            setUser(null);
-            setToken(null);
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-          }
-        } catch {
+          const profile = await getUserProfile(firebaseUser.uid);
+          setUser(profile);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
           setUser(null);
-          setToken(null);
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
         }
-      })();
-    }
-  }, [token, user]);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const login = async (email: string, senha: string) => {
-    setLoading(true);
+    // For email/password login, we'd need to implement that in auth.ts too if we want to support it.
+    // But the requirements emphasize Google Login for Farmers.
+    // Admins might use email/password.
+    // For now, let's keep it simple or implement a basic Firebase email login if needed.
+    // Assuming admin accounts are created manually in Firebase Console or via a script.
+    await signInWithEmailAndPassword(auth, email, senha);
+  };
+
+  const loginWithGoogleContext = async () => {
     try {
-      const res = await apiFetch("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, senha }),
-      });
-      const data = await res.json();
-      const { token: t, user: u } = data;
-      setToken(t);
-      setUser(u);
-      localStorage.setItem("token", t);
-      localStorage.setItem("user", JSON.stringify(u));
-    } finally {
-      setLoading(false);
+      const profile = await signInWithGoogle();
+      setUser(profile);
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      throw error;
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await firebaseSignOut(auth);
     setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
   };
 
   const isAllowed = (roles: UserRole[] | UserRole) => {
@@ -86,8 +75,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, isAllowed }}>
-      {children}
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      login,
+      loginWithGoogle: loginWithGoogleContext,
+      logout,
+      isAllowed
+    }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
