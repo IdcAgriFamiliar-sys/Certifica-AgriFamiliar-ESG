@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
-import { Shield, CheckCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle, Shield, AlertCircle } from "lucide-react";
 import Button from "./Button";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
 import { signInAnonymously } from "firebase/auth";
 import { uploadFiles } from "../services/storage";
+import StepIndicator from "./StepIndicator";
+import FarmBg from "../assets/farm-background.png";
+
+const steps = [
+  { id: 1, label: "Identificação" },
+  { id: 2, label: "Formação" },
+  { id: 3, label: "Documentos" },
+];
 
 const AuditorRegistrationForm: React.FC = () => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -28,37 +37,56 @@ const AuditorRegistrationForm: React.FC = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validate = () => {
-    if (!formData.nome.trim()) return "Nome é obrigatório.";
-    if (!formData.email.trim()) return "E-mail é obrigatório.";
-    if (!formData.cpf.trim()) return "CPF é obrigatório.";
-    if (!formData.conselhoClasse.trim()) return "Conselho de Classe é obrigatório.";
-    if (!formData.numeroRegistro.trim()) return "Número de Registro é obrigatório.";
-    if (rgCpfFiles.length === 0) return "Anexe RG/CPF (arquivo).";
-    if (conselhoFiles.length === 0) return "Anexe a Carteira do Conselho (arquivo).";
-    if (diplomaFiles.length === 0) return "Anexe o Diploma de Graduação (arquivo).";
+  const validateStep = (step: number) => {
+    if (step === 1) {
+      if (!formData.nome.trim()) return "Nome é obrigatório.";
+      if (!formData.email.trim()) return "E-mail é obrigatório.";
+      if (!formData.cpf.trim()) return "CPF é obrigatório.";
+    }
+    if (step === 2) {
+      if (!formData.conselhoClasse.trim()) return "Conselho de Classe é obrigatório.";
+      if (!formData.numeroRegistro.trim()) return "Número de Registro é obrigatório.";
+      if (!formData.graduacao.trim()) return "Graduação é obrigatório.";
+    }
     return null;
+  };
+
+  const nextStep = () => {
+    const error = validateStep(currentStep);
+    if (error) return alert(error);
+    setCurrentStep(prev => Math.min(prev + 1, steps.length));
+    window.scrollTo(0, 0);
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo(0, 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const err = validate();
-    if (err) return alert(err);
+    // Final Validations for Docs
+    if (rgCpfFiles.length === 0) return alert("Anexe RG/CPF (arquivo).");
+    if (conselhoFiles.length === 0) return alert("Anexe a Carteira do Conselho (arquivo).");
+    if (diplomaFiles.length === 0) return alert("Anexe o Diploma de Graduação (arquivo).");
 
     setLoading(true);
+    setLoadingMessage("Iniciando...");
 
     try {
-      // Ensure user is authenticated (anonymously) for Firestore write permissions
       if (!auth.currentUser) {
+        setLoadingMessage("Autenticando...");
         await signInAnonymously(auth);
       }
 
       // 1. Upload Files
+      setLoadingMessage("Enviando arquivos...");
       const basePath = `auditors/${formData.email}`;
       const rgCpfUrls = await uploadFiles(rgCpfFiles, `${basePath}/docs`);
       const conselhoUrls = await uploadFiles(conselhoFiles, `${basePath}/docs`);
@@ -66,6 +94,7 @@ const AuditorRegistrationForm: React.FC = () => {
       const cvUrls = await uploadFiles(cvFiles, `${basePath}/docs`);
 
       // 2. Prepare Data
+      setLoadingMessage("Salvando dados...");
       const auditorData = {
         ...formData,
         documents: {
@@ -87,19 +116,155 @@ const AuditorRegistrationForm: React.FC = () => {
       alert(`Erro ao enviar solicitação: ${error.message || "Tente novamente."}`);
     } finally {
       setLoading(false);
+      setLoadingMessage("");
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-5 animate-fade-in-up">
+            <div className="grid md:grid-cols-2 gap-5">
+              <div className="md:col-span-2">
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">Nome Completo</label>
+                <input
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="Ex: Dra. Ana Souza"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">CPF</label>
+                <input
+                  name="cpf"
+                  value={formData.cpf}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="000.000.000-00"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">E-mail</label>
+                <input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="ana@email.com"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">Telefone / WhatsApp</label>
+                <input
+                  name="telefone"
+                  value={formData.telefone}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-5 animate-fade-in-up">
+            <div className="grid md:grid-cols-2 gap-5">
+              <div>
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">Conselho de Classe</label>
+                <input
+                  name="conselhoClasse"
+                  value={formData.conselhoClasse}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="Ex: CREA"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">Número de Registro</label>
+                <input
+                  name="numeroRegistro"
+                  value={formData.numeroRegistro}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="12345/D"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">Graduação</label>
+                <input
+                  name="graduacao"
+                  value={formData.graduacao}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700"
+                  placeholder="Ex: Engenharia Agronômica"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1 block">Resumo da Experiência</label>
+                <textarea
+                  name="experiencia"
+                  rows={3}
+                  value={formData.experiencia}
+                  onChange={handleChange}
+                  className="w-full p-4 bg-stone-50 border-2 border-stone-100 rounded-xl focus:border-purple-500 focus:bg-white outline-none transition-all font-medium text-stone-700 h-24 resize-none"
+                  placeholder="Breve resumo..."
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-6 animate-fade-in-up">
+            <div className="bg-purple-50 border border-purple-200 p-4 rounded-xl flex gap-3 text-purple-800 text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p>Para auditores, o envio de todos os documentos é obrigatório para análise do conselho.</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <FileUploadZone
+                label="RG ou CNH"
+                accept=".pdf,.jpg,.png"
+                multiple
+                onFilesSelected={setRgCpfFiles}
+              />
+              <FileUploadZone
+                label="Carteira do Conselho"
+                accept=".pdf,.jpg,.png"
+                onFilesSelected={setConselhoFiles}
+              />
+              <FileUploadZone
+                label="Diploma de Graduação"
+                accept=".pdf"
+                onFilesSelected={setDiplomaFiles}
+              />
+              <FileUploadZone
+                label="Curriculum Vitae"
+                accept=".pdf"
+                onFilesSelected={setCvFiles}
+              />
+            </div>
+          </div>
+        );
+      default: return null;
     }
   };
 
   if (submitted) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-xl max-w-lg w-full text-center">
-          <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-purple-600" />
+        <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-lg w-full text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-400 to-indigo-600"></div>
+          <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce-slow">
+            <CheckCircle className="w-12 h-12 text-purple-600" />
           </div>
-          <h2 className="text-2xl font-bold text-stone-900 mb-2">Solicitação Enviada!</h2>
-          <p className="text-stone-500 mb-8">
-            Seu pedido de credenciamento foi recebido. O comitê técnico do IDC analisará suas credenciais e entrará em contato pelo email <strong>{formData.email}</strong> em até 5 dias úteis.
+          <h2 className="text-3xl font-bold text-stone-900 mb-3">Solicitação Enviada!</h2>
+          <p className="text-stone-500 mb-8 text-lg">
+            Agradecemos seu interesse. O comitê técnico analisará suas credenciais e entrará em contato em breve.
           </p>
           <Button
             variant="dark"
@@ -114,194 +279,82 @@ const AuditorRegistrationForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 overflow-hidden border border-stone-100">
-        <div className="bg-stone-900 p-8 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
-            <Shield className="w-64 h-64" />
+    <div className="min-h-screen flex bg-white font-sans selection:bg-purple-100">
+      {/* Left Panel */}
+      <div className="hidden lg:block w-5/12 relative overflow-hidden bg-stone-900">
+        <div className="absolute inset-0 bg-black/40 z-10 mix-blend-multiply"></div>
+        <img
+          src={FarmBg}
+          alt="Background"
+          className="w-full h-full object-cover opacity-80 scale-105 hover:scale-110 transition-transform duration-[20s] grayscale-[30%]"
+        />
+        <div className="absolute bottom-0 left-0 right-0 p-12 z-20 text-white bg-gradient-to-t from-black/90 to-transparent">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-purple-600 p-2 rounded-lg">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+            <span className="font-bold text-xl tracking-tight">Certifica ESG</span>
           </div>
-          <div className="relative z-10">
-            <h2 className="text-3xl font-bold mb-2">Credenciamento de Auditor(a)</h2>
-            <p className="text-stone-400">Faça parte do corpo técnico do IDC e realize auditorias de certificação ESG.</p>
+          <blockquote className="text-2xl font-light leading-relaxed mb-4">
+            "Garantindo a integridade e a confiança do selo que transforma vidas."
+          </blockquote>
+          <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Área de Credenciamento</p>
+        </div>
+      </div>
+
+      {/* Right Panel */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-stone-100 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-30">
+          <div className="lg:hidden flex items-center gap-2">
+            <div className="bg-purple-600 p-1.5 rounded-lg">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-stone-800">Certifica ESG</span>
+          </div>
+
+          <div className="hidden lg:block">
+            <h2 className="text-xl font-bold text-stone-800">Credenciamento de Auditor</h2>
+            <p className="text-sm text-stone-400">Junte-se ao nosso corpo técnico</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-8">
-          {/* Dados Pessoais */}
-          <section>
-            <h3 className="text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center text-stone-700 text-sm">1</span>
-              Dados Pessoais
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-1">Nome Completo</label>
-                <input
-                  name="nome"
-                  placeholder="Ex: Dra. Ana Souza"
-                  value={formData.nome}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">E-mail</label>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Ex: ana@email.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Telefone / WhatsApp</label>
-                <input
-                  name="telefone"
-                  placeholder="(00) 00000-0000"
-                  value={formData.telefone}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">CPF</label>
-                <input
-                  name="cpf"
-                  placeholder="000.000.000-00"
-                  value={formData.cpf}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  required
-                />
-              </div>
-            </div>
-          </section>
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-2xl mx-auto px-6 py-8">
+            <StepIndicator steps={steps} currentStep={currentStep} />
 
-          <hr className="border-stone-100" />
+            <form onSubmit={handleSubmit} className="mt-8">
+              <div className="min-h-[300px]">
+                {renderStepContent()}
+              </div>
 
-          {/* Formação e Registro */}
-          <section>
-            <h3 className="text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center text-purple-700 text-sm">2</span>
-              Formação e Registro
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Conselho de Classe</label>
-                <input
-                  name="conselhoClasse"
-                  placeholder="Ex: CREA, CRBio"
-                  value={formData.conselhoClasse}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  required
-                />
+              <div className="flex items-center justify-between pt-10 border-t border-stone-100 mt-10">
+                <div className="w-32">
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="flex items-center gap-2 text-stone-500 font-bold hover:text-stone-800 transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5" /> Voltar
+                    </button>
+                  )}
+                </div>
+                <div className="w-40">
+                  {currentStep < steps.length ? (
+                    <Button type="button" onClick={nextStep} fullWidth rightIcon={<ArrowRight className="w-5 h-5" />}>
+                      Próximo
+                    </Button>
+                  ) : (
+                    <Button type="submit" variant="dark" isLoading={loading} fullWidth rightIcon={<CheckCircle className="w-5 h-5" />}>
+                      {loading ? loadingMessage : "Finalizar"}
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Número de Registro</label>
-                <input
-                  name="numeroRegistro"
-                  placeholder="Ex: 123456/D"
-                  value={formData.numeroRegistro}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-1">Graduação</label>
-                <input
-                  name="graduacao"
-                  placeholder="Ex: Engenharia Agronômica"
-                  value={formData.graduacao}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Pós-Graduação (Opcional)</label>
-                <input
-                  name="posGraduacao"
-                  placeholder="Ex: Gestão Ambiental"
-                  value={formData.posGraduacao}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Mestrado/Doutorado (Opcional)</label>
-                <input
-                  name="mestradoDoutorado"
-                  placeholder="Ex: Agroecologia"
-                  value={formData.mestradoDoutorado}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-1">Resumo da Experiência Profissional</label>
-                <textarea
-                  name="experiencia"
-                  rows={4}
-                  placeholder="Descreva brevemente sua experiência com auditorias, certificações ou trabalho no campo..."
-                  value={formData.experiencia}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-            </div>
-          </section>
-
-          <hr className="border-stone-100" />
-
-          {/* Documentação */}
-          <section>
-            <h3 className="text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center text-stone-700 text-sm">3</span>
-              Documentação Comprobatória
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <FileUploadZone
-                label="RG ou CNH (Frente e Verso) *"
-                accept=".pdf,.jpg,.png"
-                multiple
-                onFilesSelected={setRgCpfFiles}
-              />
-              <FileUploadZone
-                label="Carteira do Conselho *"
-                accept=".pdf,.jpg,.png"
-                onFilesSelected={setConselhoFiles}
-              />
-              <FileUploadZone
-                label="Diploma de Graduação *"
-                accept=".pdf"
-                onFilesSelected={setDiplomaFiles}
-              />
-              <FileUploadZone
-                label="Curriculum Vitae (PDF) *"
-                accept=".pdf"
-                onFilesSelected={setCvFiles}
-              />
-            </div>
-          </section>
-
-          <div className="flex gap-4 justify-end pt-4">
-            <Button
-              type="submit"
-              variant="dark"
-              size="lg"
-              isLoading={loading}
-              rightIcon={<CheckCircle className="w-5 h-5" />}
-            >
-              Enviar Solicitação
-            </Button>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

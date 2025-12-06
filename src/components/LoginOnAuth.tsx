@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { ArrowLeft, Leaf } from "lucide-react";
+import { ArrowLeft, Leaf, HelpCircle } from "lucide-react";
 import Button from "./Button";
+import SupportModal from "./SupportModal";
+// import SeloLogo from "../assets/SeloESGAgriFamiliar.png";
 // import { sendPasswordResetEmail } from "firebase/auth";
 // import { auth } from "../services/firebase";
 
@@ -11,12 +13,13 @@ interface Props {
 }
 
 const Login: React.FC<Props> = ({ onLogin, onBack }) => {
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, loginAsDev } = useAuth();
   // const [email, setEmail] = useState("");
   // const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   // const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   // Prevent unused var warnings
   // Prevent unused var warnings
@@ -105,6 +108,23 @@ const Login: React.FC<Props> = ({ onLogin, onBack }) => {
             >
               Entrar com Google
             </Button>
+            {import.meta.env.DEV && (
+              <Button
+                type="button"
+                variant="ghost"
+                fullWidth
+                size="sm"
+                className="mt-2 text-stone-400"
+                onClick={async () => {
+                  if (loginAsDev) {
+                    await loginAsDev();
+                    onLogin();
+                  }
+                }}
+              >
+                [Dev] Entrar como Admin
+              </Button>
+            )}
           </div>
         </div>
         <div className="bg-stone-50 p-6 text-center border-t border-stone-100">
@@ -114,8 +134,16 @@ const Login: React.FC<Props> = ({ onLogin, onBack }) => {
               Cadastre-se
             </button>
           </p>
+          <button
+            onClick={() => setIsSupportOpen(true)}
+            className="mt-4 text-xs text-stone-400 hover:text-green-600 flex items-center justify-center gap-1 mx-auto transition-colors"
+          >
+            <HelpCircle className="w-3 h-3" />
+            Problemas para entrar?
+          </button>
         </div>
       </div>
+      <SupportModal isOpen={isSupportOpen} onClose={() => setIsSupportOpen(false)} />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 // import { getFirestore } from "firebase/firestore";
@@ -16,19 +16,29 @@ const firebaseConfig = {
   measurementId: "G-MSXECYYMKF",
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
 import {
   initializeFirestore,
-  // persistentLocalCache,
-  // persistentMultipleTabManager,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  getFirestore,
+  Firestore
 } from "firebase/firestore";
 
-const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+let db: Firestore;
+try {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  });
+} catch (e) {
+  // If already initialized (common in hot reload), use existing instance
+  db = getFirestore(app);
+}
 const storage = getStorage(app);
 
 export { app, analytics, auth, db, storage };

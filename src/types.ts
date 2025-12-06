@@ -26,7 +26,8 @@ export type DashboardView =
   | 'configuracoes'
   | 'vendas'
   | 'gastos'
-  | 'producao';
+  | 'producao'
+  | 'documentos-pendentes';
 
 // === Dados de Certificações ===
 export interface Certification {

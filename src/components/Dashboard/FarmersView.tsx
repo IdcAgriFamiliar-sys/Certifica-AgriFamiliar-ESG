@@ -241,40 +241,71 @@ const FarmersView: React.FC = () => {
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Novo Agricultor">
-        <form onSubmit={handleSave} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Nome da Propriedade</label>
-            <input
-              type="text"
-              value={newFarmerName}
-              onChange={e => setNewFarmerName(e.target.value)}
-              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
-              required
-            />
+        <form onSubmit={handleSave} className="space-y-6">
+          <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 mb-6">
+            <p className="text-sm text-stone-500 mb-4">Dados da propriedade e do responsável.</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <UserPlus size={16} className="text-green-600" /> Nome da Propriedade
+                </label>
+                <input
+                  type="text"
+                  value={newFarmerName}
+                  onChange={e => setNewFarmerName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                  placeholder="Ex: Fazenda Santa Maria"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                    <UserPlus size={16} className="text-green-600" /> Proprietário
+                  </label>
+                  <input
+                    type="text"
+                    value={newFarmerOwner}
+                    onChange={e => setNewFarmerOwner(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                    placeholder="Nome Completo"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                    <MapPin size={16} className="text-green-600" /> Localização
+                  </label>
+                  <input
+                    type="text"
+                    value={newFarmerLocation}
+                    onChange={e => setNewFarmerLocation(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                    placeholder="Cidade/Estado"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Proprietário</label>
-            <input
-              type="text"
-              value={newFarmerOwner}
-              onChange={e => setNewFarmerOwner(e.target.value)}
-              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Localização</label>
-            <input
-              type="text"
-              value={newFarmerLocation}
-              onChange={e => setNewFarmerLocation(e.target.value)}
-              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
-              required
-            />
-          </div>
-          <div className="pt-4 flex justify-end gap-3">
-            <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
-            <Button type="submit">Cadastrar</Button>
+
+          <div className="pt-4 flex justify-end gap-3 border-t border-stone-100">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-3 text-stone-600 hover:bg-stone-100 rounded-xl transition-colors font-bold text-sm"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-8 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-700/20 active:scale-95 transition-all font-bold text-sm flex items-center gap-2"
+            >
+              <CheckCircle size={18} />
+              Cadastrar Agricultor
+            </button>
           </div>
         </form>
       </Modal>

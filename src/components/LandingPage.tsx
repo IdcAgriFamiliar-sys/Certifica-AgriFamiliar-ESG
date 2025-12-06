@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import Button from "./Button";
 
+import IDCLogo from "../assets/LogoDespertarCidadania.png";
+
 interface Props {
   onOpenLogin: () => void;
   onOpenFarmerRegister: () => void;
@@ -240,35 +242,32 @@ const LandingPage: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* IDC Section - Dark Mode */}
+          {/* IDC Section - Improved */}
           <div className="mt-32 mb-0">
-            <div className="bg-stone-900 py-24 relative overflow-hidden rounded-[2.5rem] shadow-2xl shadow-stone-900/50 border border-stone-800">
-              <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center mix-blend-overlay" />
-              <div className="absolute inset-0 bg-gradient-to-r from-stone-900 via-stone-900/90 to-transparent"></div>
+            <div className="bg-white rounded-[2.5rem] p-12 lg:p-20 border border-stone-100 shadow-2xl shadow-stone-200/50 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-50 rounded-full blur-3xl opacity-50 -mr-20 -mt-20"></div>
 
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="max-w-7xl mx-auto relative z-10">
                 <div className="grid md:grid-cols-2 gap-16 items-center">
-                  <div>
-                    <div className="inline-flex items-center gap-2 bg-green-900/30 border border-green-800/50 px-4 py-1.5 rounded-full mb-8 backdrop-blur-sm">
-                      <Building2 className="w-4 h-4 text-green-400" />
-                      <span className="text-xs font-bold text-green-400 uppercase tracking-widest">Instituto Despertar da Cidadania</span>
+                  <div className="order-2 md:order-1">
+                    <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-1.5 rounded-full mb-8 font-bold text-xs uppercase tracking-widest border border-green-100">
+                      <Building2 className="w-4 h-4" />
+                      Instituto Despertar da Cidadania
                     </div>
-                    <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight tracking-tight">
-                      Transformando vidas através da <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">certificação</span>.
+                    <h3 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6 leading-tight">
+                      A autoridade por trás do seu <span className="text-green-600">selo de qualidade</span>.
                     </h3>
-                    <p className="text-stone-400 text-lg mb-10 leading-relaxed max-w-lg">
-                      O IDC é a organização responsável por validar e emitir os selos de conformidade ESG, garantindo que sua produção seja reconhecida internacionalmente.
+                    <p className="text-stone-500 text-lg mb-10 leading-relaxed">
+                      O IDC (Instituto Despertar da Cidadania) é a entidade certificadora oficial, garantindo que cada selo emitido represente conformidade real com os padrões internacionais de ESG.
                     </p>
-                    <ul className="space-y-5 mb-12">
+                    <ul className="space-y-4 mb-10">
                       {[
-                        "Auditorias independentes e transparentes",
-                        "Apoio técnico contínuo ao produtor",
-                        "Conexão direta com compradores",
+                        "Reconhecimento Nacional",
+                        "Auditorias Padronizadas",
+                        "Suporte ao Produtor Rural",
                       ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-4 text-stone-300 font-medium">
-                          <div className="w-8 h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0">
-                            <CheckCircle className="w-5 h-5 text-green-500" />
-                          </div>
+                        <li key={i} className="flex items-center gap-3 text-stone-700 font-medium text-lg">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
                           {item}
                         </li>
                       ))}
@@ -278,26 +277,21 @@ const LandingPage: React.FC<Props> = ({
                       size="lg"
                       onClick={() => window.open("https://idc.org.br", "_blank")}
                       rightIcon={<Globe className="w-5 h-5" />}
-                      className="shadow-lg shadow-green-900/20"
                     >
-                      Conheça o Instituto
+                      Acessar Site do IDC
                     </Button>
                   </div>
-                  <div className="relative hidden md:block">
-                    <div className="aspect-square rounded-[2.5rem] bg-gradient-to-br from-stone-800 to-stone-900 border border-stone-700/50 p-12 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-green-500/30 transition-colors duration-500">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                      {/* Placeholder for IDC Logo */}
-                      <div className="w-40 h-40 bg-stone-800 rounded-full flex items-center justify-center border-4 border-stone-700 mb-8 shadow-2xl group-hover:scale-110 group-hover:border-green-500/50 transition-all duration-500 relative z-10">
-                        <Building2 className="w-20 h-20 text-stone-500 group-hover:text-green-500 transition-colors duration-500" />
-                      </div>
-
-                      <h4 className="text-4xl font-bold text-white mb-3 relative z-10">IDC</h4>
-                      <p className="text-stone-500 font-medium text-lg relative z-10">Instituto Despertar da Cidadania</p>
-
-                      <div className="mt-12 pt-8 border-t border-stone-700/50 w-full flex justify-between text-stone-500 font-mono text-sm relative z-10">
-                        <span>EST. 2010</span>
-                        <span>+5000 CERTIFICAÇÕES</span>
+                  <div className="order-1 md:order-2 flex justify-center">
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-green-200 blur-[60px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                      <div className="bg-white rounded-[3rem] p-12 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border-8 border-stone-50 relative z-10 w-80 h-80 flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
+                        {/* Logo Container - Clean and Centered */}
+                        <img
+                          src={IDCLogo}
+                          alt="Logo IDC"
+                          className="w-full h-auto max-w-[200px] object-contain drop-shadow-sm"
+                        />
                       </div>
                     </div>
                   </div>

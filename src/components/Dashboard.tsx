@@ -15,8 +15,12 @@ import {
   Eye,
   TrendingDown,
   Sprout,
-  ChevronDown
+  ChevronDown,
+  HelpCircle,
+  AlertTriangle
 } from "lucide-react";
+
+import SupportModal from "./SupportModal";
 
 import CertificationsView from "./Dashboard/CertificationsView";
 import FarmersView from "./Dashboard/FarmersView";
@@ -29,6 +33,7 @@ import SettingsView from "./Dashboard/SettingsView";
 import SalesView from "./Dashboard/SalesView";
 import ExpensesView from "./Dashboard/ExpensesView";
 import ProductionView from "./Dashboard/ProductionView";
+import PendingDocumentsView from "./Dashboard/PendingDocumentsView";
 
 import type { UserRole, DashboardView } from "../types";
 import { useAuth } from "../contexts/AuthContext";
@@ -88,6 +93,11 @@ const Dashboard: React.FC<Props> = () => {
   const [currentViewRole, setCurrentViewRole] = useState<UserRole>(userRole);
   const [selected, setSelected] = useState<DashboardView>(navByRole[currentViewRole][0] || "certificacoes");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
+
+  // Verify if it's a farmer and check for pending docs (simulation)
+  // In a real app, this would check the `user` object or fetch from firestore
+  const hasPendingDocs = currentViewRole === 'agricultor'; // Simulating that all farmers need docs for now
 
   // Update view when role changes (real or simulated)
   useEffect(() => {
@@ -96,8 +106,9 @@ const Dashboard: React.FC<Props> = () => {
 
   useEffect(() => {
     // Reset selection when view role changes to ensure valid tab
+    // Also allow 'documentos-pendentes' which is not in navByRole but is a valid view
     const availableViews = navByRole[currentViewRole];
-    if (!availableViews.includes(selected)) {
+    if (!availableViews.includes(selected) && selected !== 'documentos-pendentes') {
       setSelected(availableViews[0] || "certificacoes");
     }
   }, [currentViewRole]);
@@ -116,6 +127,7 @@ const Dashboard: React.FC<Props> = () => {
       case "vendas": return <SalesView />;
       case "gastos": return <ExpensesView />;
       case "producao": return <ProductionView />;
+      case "documentos-pendentes": return <PendingDocumentsView />;
       default: return <div className="p-8 text-center text-stone-500">Selecione um painel</div>;
     }
   };
@@ -210,6 +222,13 @@ const Dashboard: React.FC<Props> = () => {
             <LogOut className="w-4 h-4" />
             Sair da Conta
           </button>
+          <button
+            onClick={() => setIsSupportOpen(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 mt-2 rounded-xl text-stone-400 hover:bg-stone-800 hover:text-white transition-all text-xs font-bold"
+          >
+            <HelpCircle className="w-3 h-3" />
+            Precisa de Ajuda?
+          </button>
         </div>
       </aside>
 
@@ -261,7 +280,7 @@ const Dashboard: React.FC<Props> = () => {
       <main className="flex-1 lg:ml-72 pt-16 lg:pt-0 min-h-screen transition-all bg-stone-50/50">
         <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-10 px-8 py-5 hidden lg:flex justify-between items-center shadow-sm">
           <h2 className="text-2xl font-bold text-stone-800">
-            {navItems[selected]?.label || "Painel"}
+            {navItems[selected]?.label || (selected === 'documentos-pendentes' ? 'Documentação' : "Painel")}
           </h2>
           <div className="flex items-center gap-4">
             {userRole === "admin" && currentViewRole !== "admin" && (
@@ -275,8 +294,28 @@ const Dashboard: React.FC<Props> = () => {
         </header>
 
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto overflow-x-hidden">
+          {hasPendingDocs && selected !== 'documentos-pendentes' && (
+            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start sm:items-center gap-4 animate-fade-in-up">
+              <div className="bg-amber-100 p-2 rounded-full shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-amber-900">Documentação Pendente</h4>
+                <p className="text-sm text-amber-700">
+                  Para finalizar sua certificação, você precisa enviar seus documentos (RG/CPF e CAF).
+                </p>
+              </div>
+              <button
+                onClick={() => setSelected('documentos-pendentes')}
+                className="px-4 py-2 bg-white border border-amber-200 text-amber-900 rounded-xl text-sm font-bold shadow-sm hover:bg-amber-100 transition-colors"
+              >
+                Enviar Agora
+              </button>
+            </div>
+          )}
           {renderPanel()}
         </div>
+        <SupportModal isOpen={isSupportOpen} onClose={() => setIsSupportOpen(false)} />
       </main>
     </div>
   );

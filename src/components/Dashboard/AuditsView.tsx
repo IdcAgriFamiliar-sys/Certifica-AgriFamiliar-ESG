@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ChevronRight, Plus } from 'lucide-react';
+import { LayoutDashboard, ChevronRight, Plus, User, FileText, AlignLeft } from 'lucide-react';
 import Button from '../Button';
 import Modal from '../Modal';
 import { db } from '../../services/firebase';
@@ -127,43 +127,72 @@ const AuditsView: React.FC = () => {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nova Auditoria">
-        <form onSubmit={handleCreateAudit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Nome do Agricultor / Propriedade</label>
-            <input
-              type="text"
-              required
-              value={newAuditData.farmerName}
-              onChange={e => setNewAuditData({ ...newAuditData, farmerName: e.target.value })}
-              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
-              placeholder="Ex: Sítio Esperança"
-            />
+        <form onSubmit={handleCreateAudit} className="space-y-6">
+          <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 mb-6">
+            <p className="text-sm text-stone-500 mb-4">Dados iniciais para o agendamento.</p>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <User size={16} className="text-green-600" /> Nome do Agricultor / Propriedade
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newAuditData.farmerName}
+                  onChange={e => setNewAuditData({ ...newAuditData, farmerName: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                  placeholder="Ex: Sítio Esperança"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <FileText size={16} className="text-green-600" /> Tipo de Auditoria
+                </label>
+                <div className="relative">
+                  <select
+                    value={newAuditData.type}
+                    onChange={e => setNewAuditData({ ...newAuditData, type: e.target.value })}
+                    className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-medium text-stone-800 appearance-none cursor-pointer"
+                  >
+                    <option value="DSP">DSP - Diagnóstico Social e Produtivo</option>
+                    <option value="DGICA">DGICA - Gestão e Indicadores</option>
+                    <option value="DGCS">DGCS - Conformidade Social</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <AlignLeft size={16} className="text-green-600" /> Observações Iniciais
+                </label>
+                <textarea
+                  rows={3}
+                  value={newAuditData.notes}
+                  onChange={e => setNewAuditData({ ...newAuditData, notes: e.target.value })}
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                  placeholder="Observações sobre a visita..."
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Tipo de Auditoria</label>
-            <select
-              value={newAuditData.type}
-              onChange={e => setNewAuditData({ ...newAuditData, type: e.target.value })}
-              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none bg-white"
+
+          <div className="pt-6 flex justify-end gap-3 border-t border-stone-100">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-3 text-stone-600 hover:bg-stone-100 rounded-xl transition-colors font-bold text-sm"
             >
-              <option value="DSP">DSP - Diagnóstico Social e Produtivo</option>
-              <option value="DGICA">DGICA - Gestão e Indicadores</option>
-              <option value="DGCS">DGCS - Conformidade Social</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Observações Iniciais</label>
-            <textarea
-              rows={3}
-              value={newAuditData.notes}
-              onChange={e => setNewAuditData({ ...newAuditData, notes: e.target.value })}
-              className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"
-              placeholder="Observações sobre a visita..."
-            />
-          </div>
-          <div className="pt-4 flex justify-end gap-3">
-            <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
-            <Button type="submit">Iniciar Auditoria</Button>
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-8 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-700/20 active:scale-95 transition-all font-bold text-sm flex items-center gap-2"
+            >
+              <Plus size={18} />
+              Iniciar Auditoria
+            </button>
           </div>
         </form>
       </Modal>

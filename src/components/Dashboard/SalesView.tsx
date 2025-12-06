@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Package, TrendingUp, FileDown } from "lucide-react";
+import { Plus, Package, TrendingUp, Download, Trash2, DollarSign } from "lucide-react";
 import Button from "../Button";
 import Modal from "../Modal";
-import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, query, where, orderBy, serverTimestamp, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../services/firebase";
 import { useAuth } from "../../contexts/AuthContext";
-import { generateReport } from "../../utils/reportGenerator";
 
 const SalesView: React.FC = () => {
     const { user } = useAuth();
@@ -21,40 +20,58 @@ const SalesView: React.FC = () => {
         buyer: ""
     });
 
-    const fetchSales = async () => {
+    useEffect(() => {
         if (!user) return;
+        // REMOVED orderBy
         const q = query(
             collection(db, "sales"),
-            where("userId", "==", user.uid),
-            orderBy("date", "desc")
+            where("userId", "==", user.uid)
         );
-        const snapshot = await getDocs(q);
-        setSales(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    };
-
-    useEffect(() => {
-        fetchSales();
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            data.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setSales(data);
+        });
+        return () => unsubscribe();
     }, [user]);
 
-    const handleDownloadReport = () => {
-        const data = sales.map(s => ({
-            date: new Date(s.date).toLocaleDateString('pt-BR'),
-            product: s.product,
-            quantity: `${s.quantity} ${s.unit}`,
-            buyer: s.buyer || '-',
-            value: `R$ ${parseFloat(s.value).toFixed(2)}`
-        }));
-        generateReport("Relatório de Vendas", data, ["Data", "Produto", "Qtd", "Comprador", "Valor"]);
+    const handleExport = () => {
+        const headers = ["Data", "Produto", "Quantidade", "Comprador", "Valor"];
+        const rows = sales.map(s => [
+            new Date(s.date).toLocaleDateString('pt-BR'),
+            s.product,
+            `${s.quantity} ${s.unit}`,
+            s.buyer || '-',
+            `R$ ${parseFloat(s.value).toFixed(2)}`
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "vendas_export.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm("Tem certeza que deseja excluir esta venda?")) {
+            try {
+                await deleteDoc(doc(db, "sales", id));
+            } catch (error) {
+                console.error("Error deleting sale:", error);
+            }
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return;
-
-        if (!formData.product.trim() || !formData.quantity || !formData.value) {
-            alert("Preencha todos os campos obrigatórios.");
-            return;
-        }
+        if (!formData.product || !formData.value) { alert("Preencha produto e valor."); return; }
 
         setLoading(true);
         try {
@@ -66,19 +83,10 @@ const SalesView: React.FC = () => {
                 quantity: parseFloat(formData.quantity) || 0
             });
             setIsModalOpen(false);
-            fetchSales();
-            setFormData({
-                date: new Date().toISOString().split('T')[0],
-                product: "",
-                quantity: "",
-                unit: "kg",
-                value: "",
-                buyer: ""
-            });
-            alert("Venda registrada com sucesso!");
+            setFormData({ date: new Date().toISOString().split('T')[0], product: "", quantity: "", unit: "kg", value: "", buyer: "" });
         } catch (error) {
-            console.error("Error adding sale:", error);
-            alert("Erro ao registrar venda. Verifique os dados e tente novamente.");
+            console.error("Error:", error);
+            alert("Erro ao salvar: " + (error as any).message);
         } finally {
             setLoading(false);
         }
@@ -94,21 +102,15 @@ const SalesView: React.FC = () => {
                     <p className="text-stone-500">Registre suas vendas diárias ou semanais.</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={handleDownloadReport}
-                        leftIcon={<FileDown className="w-5 h-5" />}
-                        disabled={sales.length === 0}
-                    >
-                        Baixar Relatório
-                    </Button>
-                    <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="w-5 h-5" />}>
-                        Nova Venda
-                    </Button>
+                    <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 border border-stone-200 rounded-xl text-stone-600 hover:bg-stone-50 transition-colors font-medium bg-white">
+                        <Download size={18} /> Exportar
+                    </button>
+                    <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-200 font-medium">
+                        <Plus size={18} /> Nova Venda
+                    </button>
                 </div>
             </div>
 
-            {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
                     <div className="flex items-center gap-4 mb-2">
@@ -123,7 +125,6 @@ const SalesView: React.FC = () => {
                 </div>
             </div>
 
-            {/* Sales Table */}
             <div className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-stone-100">
@@ -134,19 +135,20 @@ const SalesView: React.FC = () => {
                                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider">Quantidade</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider">Comprador</th>
                                 <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wider">Valor (R$)</th>
+                                <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-stone-100">
                             {sales.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-stone-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-stone-500">
                                         <Package className="w-12 h-12 mx-auto mb-3 text-stone-300" />
                                         Nenhuma venda registrada ainda.
                                     </td>
                                 </tr>
                             ) : (
                                 sales.map((sale) => (
-                                    <tr key={sale.id} className="hover:bg-stone-50 transition-colors">
+                                    <tr key={sale.id} className="hover:bg-stone-50 transition-colors group">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600">
                                             {new Date(sale.date).toLocaleDateString('pt-BR')}
                                         </td>
@@ -162,6 +164,15 @@ const SalesView: React.FC = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-right">
                                             R$ {parseFloat(sale.value).toFixed(2)}
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            <button
+                                                onClick={() => handleDelete(sale.id)}
+                                                className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Excluir"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -171,81 +182,42 @@ const SalesView: React.FC = () => {
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Registrar Venda">
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid md:grid-cols-2 gap-5">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Form Content ... Same as before */}
+                    <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Data *</label>
-                            <input
-                                type="date"
-                                required
-                                value={formData.date}
-                                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                            />
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Data</label>
+                            <input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Produto *</label>
-                            <input
-                                placeholder="Ex: Milho Verde"
-                                required
-                                value={formData.product}
-                                onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                            />
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5 flex items-center gap-2"><Package size={16} className="text-green-600" /> Produto</label>
+                            <input placeholder="Ex: Milho Verde" required value={formData.product} onChange={(e) => setFormData({ ...formData, product: e.target.value })} className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" />
                         </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-5">
                         <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Quantidade *</label>
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Quantidade</label>
                             <div className="flex gap-2">
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    required
-                                    value={formData.quantity}
-                                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                    className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                                />
-                                <select
-                                    value={formData.unit}
-                                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                                    className="w-24 px-2 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none bg-white transition-all"
-                                >
+                                <input type="number" step="0.01" required value={formData.quantity} onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" />
+                                <select value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} className="w-24 px-2 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none bg-white">
                                     <option value="kg">Kg</option>
                                     <option value="sc">Saca</option>
-                                    <option value="cx">Caixa</option>
                                     <option value="un">Un</option>
-                                    <option value="ton">Ton</option>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Valor Total (R$) *</label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                required
-                                value={formData.value}
-                                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                            />
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5 flex items-center gap-2"><DollarSign size={16} className="text-green-600" /> Valor Total (R$)</label>
+                            <input type="number" step="0.01" required value={formData.value} onChange={(e) => setFormData({ ...formData, value: e.target.value })} className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" />
+                        </div>
+                        <div className="col-span-2">
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Comprador (Opcional)</label>
+                            <input placeholder="Ex: Cooperativa" value={formData.buyer} onChange={(e) => setFormData({ ...formData, buyer: e.target.value })} className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none" />
                         </div>
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1.5">Comprador (Opcional)</label>
-                        <input
-                            placeholder="Ex: Cooperativa XYZ"
-                            value={formData.buyer}
-                            onChange={(e) => setFormData({ ...formData, buyer: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                        />
-                    </div>
-
-                    <div className="pt-4 flex justify-end gap-3 border-t border-stone-100 mt-6">
-                        <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
-                        <Button type="submit" isLoading={loading}>Salvar Venda</Button>
+                    <div className="pt-6 flex justify-end gap-3 border-t border-stone-100">
+                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-stone-600 hover:bg-stone-50 rounded-xl transition-colors font-medium">Cancelar</button>
+                        <button type="submit" className="px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-200 font-medium flex items-center gap-2">
+                            <Plus size={18} /> Salvar Venda
+                        </button>
                     </div>
                 </form>
             </Modal>

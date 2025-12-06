@@ -6,6 +6,8 @@ import Dashboard from "./components/Dashboard";
 import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
 import AuditorRegistrationForm from "./components/AuditorRegistrationForm";
 import ConnectivityTest from "./components/ConnectivityTest";
+import Button from "./components/Button";
+import { ArrowLeft } from "lucide-react";
 
 import type { UserRole, Page } from "./types";
 
@@ -61,10 +63,18 @@ const App: React.FC = () => {
         <Route
           path="/farmer-register"
           element={
-            <div className="p-6">
-              <button onClick={() => go("landing")} className="mb-4 text-sm text-blue-600">
-                ← Voltar
-              </button>
+            <div className="relative">
+              <div className="absolute top-4 left-4 z-50 lg:hidden">
+                <Button
+                  onClick={() => go("landing")}
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={<ArrowLeft className="w-4 h-4" />}
+                  className="bg-white/80 backdrop-blur-md shadow-sm border border-stone-200"
+                >
+                  Voltar
+                </Button>
+              </div>
               <FarmerRegistrationForm />
             </div>
           }
@@ -73,10 +83,18 @@ const App: React.FC = () => {
         <Route
           path="/auditor-register"
           element={
-            <div className="p-6">
-              <button onClick={() => go("landing")} className="mb-4 text-sm text-blue-600">
-                ← Voltar
-              </button>
+            <div className="relative">
+              <div className="absolute top-4 left-4 z-50 lg:hidden">
+                <Button
+                  onClick={() => go("landing")}
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={<ArrowLeft className="w-4 h-4" />}
+                  className="bg-white/80 backdrop-blur-md shadow-sm border border-stone-200"
+                >
+                  Voltar
+                </Button>
+              </div>
               <AuditorRegistrationForm />
             </div>
           }

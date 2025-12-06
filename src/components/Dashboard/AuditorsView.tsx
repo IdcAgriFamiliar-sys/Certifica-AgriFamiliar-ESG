@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserPlus, Search, ChevronRight, CheckCircle, XCircle, FileText, GraduationCap } from 'lucide-react';
-// import { Auditor } from '../../types';
+import { Shield, UserPlus, Search, ChevronRight, CheckCircle, XCircle, FileText, GraduationCap, Mail, Award, Download, Trash2, Plus } from 'lucide-react';
 import Button from '../Button';
 import { db } from '../../services/firebase';
-import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import Modal from '../Modal';
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -18,6 +18,12 @@ const AuditorsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active' | 'requests'>('active');
   const [auditors, setAuditors] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Form State
+  const [newAuditorName, setNewAuditorName] = useState("");
+  const [newAuditorEmail, setNewAuditorEmail] = useState("");
+  const [newAuditorSpec, setNewAuditorSpec] = useState("");
 
   useEffect(() => {
     // Listen for Active Auditors (Approved)
@@ -64,6 +70,60 @@ const AuditorsView: React.FC = () => {
     }
   };
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await addDoc(collection(db, "auditors"), {
+        nome: newAuditorName,
+        email: newAuditorEmail,
+        especialidade: newAuditorSpec,
+        status: "Aprovado", // Admin created = Pre-approved
+        registro: "AUT-" + Math.floor(Math.random() * 10000),
+        createdAt: serverTimestamp()
+      });
+      setIsModalOpen(false);
+      setNewAuditorName("");
+      setNewAuditorEmail("");
+      setNewAuditorSpec("");
+    } catch (error) {
+      console.error("Error creating auditor:", error);
+      alert("Erro ao cadastrar auditor");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Tem certeza que deseja excluir este auditor?")) {
+      try {
+        await deleteDoc(doc(db, "auditors", id));
+      } catch (error) {
+        console.error("Error deleting auditor:", error);
+      }
+    }
+  };
+
+  const handleExport = () => {
+    const headers = ["Nome", "Registro", "E-mail", "Especialidade", "Status"];
+    const rows = auditors.map(a => [
+      a.nome,
+      a.registro,
+      a.email,
+      a.especialidade,
+      a.status
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(",") + "\n"
+      + rows.map(e => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "auditores_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in-up">
       <div className="flex justify-between items-center">
@@ -76,26 +136,40 @@ const AuditorsView: React.FC = () => {
         </div>
 
         <div className="flex gap-2">
-          <Button
-            variant={activeTab === 'active' ? 'dark' : 'ghost'}
-            onClick={() => setActiveTab('active')}
-            size="sm"
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2.5 border border-stone-200 rounded-xl text-stone-600 hover:bg-stone-50 transition-colors font-medium bg-white"
           >
-            Credenciados
-          </Button>
-          <Button
-            variant={activeTab === 'requests' ? 'dark' : 'ghost'}
-            onClick={() => setActiveTab('requests')}
-            size="sm"
-            rightIcon={requests.length > 0 ? <span className="bg-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{requests.length}</span> : undefined}
+            <Download size={18} />
+            Exportar
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200 font-medium"
           >
-            Solicitações
-          </Button>
-          <div className="w-px bg-stone-200 mx-2"></div>
-          <Button leftIcon={<UserPlus size={18} />}>
+            <Plus size={18} />
             Cadastrar Auditor
-          </Button>
+          </button>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-stone-100">
+        <button
+          onClick={() => setActiveTab('active')}
+          className={`pb-3 px-2 text-sm font-medium transition-colors relative ${activeTab === 'active' ? 'text-purple-600' : 'text-stone-500 hover:text-stone-700'}`}
+        >
+          Credenciados
+          {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full"></div>}
+        </button>
+        <button
+          onClick={() => setActiveTab('requests')}
+          className={`pb-3 px-2 text-sm font-medium transition-colors relative ${activeTab === 'requests' ? 'text-purple-600' : 'text-stone-500 hover:text-stone-700'}`}
+        >
+          Solicitações
+          {requests.length > 0 && <span className="ml-2 bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full text-xs">{requests.length}</span>}
+          {activeTab === 'requests' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full"></div>}
+        </button>
       </div>
 
       {activeTab === 'active' ? (
@@ -126,7 +200,7 @@ const AuditorsView: React.FC = () => {
                 </tr>
               )}
               {auditors.map(a => (
-                <tr key={a.id} className="hover:bg-stone-50 transition-colors">
+                <tr key={a.id} className="hover:bg-stone-50 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="font-bold text-stone-800">{a.nome}</div>
                     <div className="text-xs text-stone-500 font-mono mt-0.5">Reg: {a.registro}</div>
@@ -139,12 +213,22 @@ const AuditorsView: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-stone-500">{a.lastAudit ? new Date(a.lastAudit).toLocaleDateString('pt-BR') : '-'}</td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => alert(`Funcionalidade em desenvolvimento: Ver perfil de ${a.nome}`)}
-                      className="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center justify-end gap-1 transition-colors"
-                    >
-                      Ver Perfil <ChevronRight size={16} />
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => alert(`Funcionalidade em desenvolvimento: Ver perfil de ${a.nome}`)}
+                        className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        title="Ver Perfil"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(a.id)}
+                        className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Excluir"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -170,14 +254,98 @@ const AuditorsView: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" size="sm" onClick={() => alert(`Funcionalidade em desenvolvimento: Analisar documentos de ${req.nome}`)} leftIcon={<FileText className="w-4 h-4" />}>Analisar Documentos</Button>
-                <Button variant="danger" size="sm" onClick={() => handleReject(req.id)} leftIcon={<XCircle className="w-4 h-4" />}>Rejeitar</Button>
-                <Button variant="primary" size="sm" onClick={() => handleApprove(req.id)} leftIcon={<CheckCircle className="w-4 h-4" />}>Aprovar Credenciamento</Button>
+                <button
+                  onClick={() => alert(`Funcionalidade em desenvolvimento: Analisar documentos de ${req.nome}`)}
+                  className="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-xl text-stone-600 hover:bg-stone-50 transition-colors font-medium bg-white text-sm"
+                >
+                  <FileText size={16} /> Analisar
+                </button>
+                <button
+                  onClick={() => handleReject(req.id)}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors font-medium text-sm"
+                >
+                  <XCircle size={16} /> Rejeitar
+                </button>
+                <button
+                  onClick={() => handleApprove(req.id)}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium text-sm shadow-sm"
+                >
+                  <CheckCircle size={16} /> Aprovar
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Cadastrar Auditor">
+        <form onSubmit={handleCreate} className="space-y-6">
+          <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 mb-6">
+            <p className="text-sm text-stone-500 mb-4">Informações do profissional para credenciamento.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="col-span-2">
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <GraduationCap size={16} className="text-purple-600" /> Nome Completo
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                  placeholder="Ex: Dr. João Silva"
+                  value={newAuditorName}
+                  onChange={e => setNewAuditorName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <Mail size={16} className="text-purple-600" /> E-mail Profissional
+                </label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                  placeholder="joao@email.com"
+                  value={newAuditorEmail}
+                  onChange={e => setNewAuditorEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
+                  <Award size={16} className="text-purple-600" /> Especialidade
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all font-medium text-stone-800 placeholder:text-stone-400"
+                  placeholder="Ex: Engenharia Ambiental"
+                  value={newAuditorSpec}
+                  onChange={e => setNewAuditorSpec(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 flex justify-end gap-3 border-t border-stone-100">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-3 text-stone-600 hover:bg-stone-100 rounded-xl transition-colors font-bold text-sm"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-8 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-700/20 active:scale-95 transition-all font-bold text-sm flex items-center gap-2"
+            >
+              <Plus size={18} />
+              Cadastrar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

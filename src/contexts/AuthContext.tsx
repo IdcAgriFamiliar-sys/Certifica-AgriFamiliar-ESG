@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -15,6 +15,7 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, senha: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  loginAsDev?: () => Promise<void>;
   logout: () => Promise<void>;
   isAllowed: (roles: UserRole[] | UserRole) => boolean;
 };
@@ -28,6 +29,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        // Check for Dev Admin Override
+        if (sessionStorage.getItem('DEV_ADMIN_MODE') === 'true') {
+          setUser({
+            uid: firebaseUser.uid,
+            email: "admin@dev.com",
+            displayName: "Dev Admin",
+            photoURL: "",
+            role: "admin"
+          });
+          setLoading(false);
+          return;
+        }
+
         try {
           const profile = await getUserProfile(firebaseUser.uid);
           setUser(profile);
@@ -45,11 +59,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, senha: string) => {
-    // For email/password login, we'd need to implement that in auth.ts too if we want to support it.
-    // But the requirements emphasize Google Login for Farmers.
-    // Admins might use email/password.
-    // For now, let's keep it simple or implement a basic Firebase email login if needed.
-    // Assuming admin accounts are created manually in Firebase Console or via a script.
     await signInWithEmailAndPassword(auth, email, senha);
   };
 
@@ -64,8 +73,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    sessionStorage.removeItem('DEV_ADMIN_MODE');
     await firebaseSignOut(auth);
     setUser(null);
+  };
+
+  const loginAsDev = async () => {
+    // DEV ONLY: Set flag and sign in anonymously
+    try {
+      // Ensure we start from a clean slate
+      await firebaseSignOut(auth);
+      sessionStorage.setItem('DEV_ADMIN_MODE', 'true');
+
+      // Wait a tiny bit to ensure auth state clears if needed, 
+      // though await signOut should be enough.
+
+      await import("firebase/auth").then(m => m.signInAnonymously(auth));
+
+      // Force a state update if onAuthStateChanged doesn't trigger (rare but possible with race conditions)
+      // logic handled by listener, but if we are already anonymous, listener might not fire?
+      // signOut() above guarantees it will fire (null -> user).
+    } catch (e) {
+      console.error("Dev Login Error", e);
+      sessionStorage.removeItem('DEV_ADMIN_MODE');
+    }
   };
 
   const isAllowed = (roles: UserRole[] | UserRole) => {
@@ -80,6 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading,
       login,
       loginWithGoogle: loginWithGoogleContext,
+      loginAsDev,
       logout,
       isAllowed
     }}>

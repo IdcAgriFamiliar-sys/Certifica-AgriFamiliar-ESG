@@ -94,7 +94,11 @@ export const signInWithGoogle = async (): Promise<UserProfile> => {
 
     // Check if Admin (Hardcoded for safety/bootstrap)
     // In a real app, this should be in a secure 'admins' collection or set via Firebase Console Claims
-    const ADMIN_EMAILS = ["ruangomes@example.com", "admin@certifica.com"]; // Add your admin email here
+    const ADMIN_EMAILS = ["ruangomes@example.com", "admin@certifica.com", "fraruann159@gmail.com"];
+
+    // Check 'admins' collection logic could go here if we wanted dynamic admins
+    // But for now, bootstrapping via email list is fine as requested.
+
     if (ADMIN_EMAILS.includes(user.email || "")) {
         const newProfile: UserProfile = {
             uid: user.uid,
